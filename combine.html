@@ -1,0 +1,5944 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>ECE Student Management System</title>
+
+    <!-- CSS is embedded here -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --bg: #050816;
+            --bg2: #080d20;
+            --card: rgba(12, 19, 40, 0.78);
+            --card-light: rgba(20, 30, 58, 0.7);
+            --cyan: #00f5d4;
+            --cyan-dark: #00bfa6;
+            --purple: #7657ff;
+            --pink: #b45cff;
+            --green: #31ff82;
+            --red: #ff5370;
+            --yellow: #ffd166;
+            --white: #ffffff;
+            --gray: #929db9;
+            --muted: #59657f;
+            --border: rgba(255, 255, 255, 0.09);
+            --sidebar-width: 260px;
+        }
+        
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        body {
+            min-height: 100vh;
+            background: var(--bg);
+            color: var(--white);
+            font-family: "Inter", sans-serif;
+            overflow-x: hidden;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        button,
+        input,
+        select {
+            font-family: inherit;
+        }
+        
+        .login-screen {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle at top, rgba(0, 245, 212, 0.12), rgba(5, 8, 22, 0.96) 45%);
+            z-index: 200;
+        }
+        
+        .login-card {
+            width: min(460px, calc(100% - 32px));
+            padding: 32px 28px;
+            background: rgba(10, 16, 32, 0.9);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.35);
+        }
+        
+        .login-brand {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            margin-bottom: 22px;
+            text-align: center;
+        }
+        
+        .login-brand h2 {
+            font-family: "Orbitron", sans-serif;
+            font-size: 24px;
+            letter-spacing: 1px;
+        }
+        
+        .login-brand h2 span {
+            color: var(--cyan);
+        }
+        
+        .login-brand small {
+            display: block;
+            margin-top: 6px;
+            color: var(--muted);
+            font-size: 8px;
+            letter-spacing: 2px;
+        }
+        
+        .teacher-login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+        
+        .login-form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .login-form-group label {
+            color: var(--gray);
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .login-form-group input,
+        .login-form-group select {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px 14px;
+            color: var(--white);
+            font-size: 14px;
+            outline: none;
+        }
+        
+        .login-form-group input:focus,
+        .login-form-group select:focus {
+            border-color: rgba(0, 245, 212, 0.6);
+            box-shadow: 0 0 0 3px rgba(0, 245, 212, 0.12);
+        }
+        
+        .login-button {
+            width: 100%;
+            margin-top: 8px;
+            justify-content: center;
+        }
+        
+        #appShell {
+            display: block;
+        }
+        
+        button {
+            cursor: pointer;
+        }
+        
+        .background {
+            position: fixed;
+            inset: 0;
+            z-index: -10;
+            overflow: hidden;
+            background: radial-gradient( circle at 10% 10%, rgba(0, 245, 212, 0.08), transparent 28%), radial-gradient( circle at 90% 90%, rgba(118, 87, 255, 0.12), transparent 30%), var(--bg);
+        }
+        
+        .grid {
+            position: absolute;
+            inset: 0;
+            background-image: linear-gradient( rgba(255, 255, 255, 0.025) 1px, transparent 1px), linear-gradient( 90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+            background-size: 50px 50px;
+            mask-image: linear-gradient( to bottom, black, transparent 90%);
+            -webkit-mask-image: linear-gradient( to bottom, black, transparent 90%);
+        }
+        
+        .glow {
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            filter: blur(130px);
+            opacity: 0.13;
+        }
+        
+        .glow-one {
+            top: -200px;
+            left: -180px;
+            background: var(--cyan);
+        }
+        
+        .glow-two {
+            right: -180px;
+            bottom: -200px;
+            background: var(--purple);
+        }
+        /* ==============================
+SIDEBAR
+============================== */
+        
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: var(--sidebar-width);
+            padding: 28px 18px;
+            display: flex;
+            flex-direction: column;
+            background: rgba(5, 8, 22, 0.86);
+            border-right: 1px solid var(--border);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            z-index: 100;
+        }
+        
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 5px 10px 30px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .brand-icon {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            background: var(--cyan);
+            color: #03100e;
+            font-family: "Orbitron", sans-serif;
+            font-weight: 800;
+            box-shadow: 0 0 25px rgba(0, 245, 212, 0.25);
+        }
+        
+        .brand h2 {
+            font-family: "Orbitron", sans-serif;
+            font-size: 17px;
+            letter-spacing: 1px;
+        }
+        
+        .brand h2 span {
+            color: var(--cyan);
+        }
+        
+        .brand small {
+            display: block;
+            margin-top: 4px;
+            color: var(--muted);
+            font-size: 7px;
+            letter-spacing: 2px;
+        }
+        
+        .navigation {
+            margin-top: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+        
+        .nav-item {
+            width: 100%;
+            padding: 13px 14px;
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            border: 1px solid transparent;
+            border-radius: 10px;
+            background: transparent;
+            color: var(--gray);
+            text-align: left;
+            font-size: 12px;
+            transition: 0.25s ease;
+        }
+        
+        .nav-item:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.035);
+        }
+        
+        .nav-item.active {
+            color: var(--cyan);
+            background: rgba(0, 245, 212, 0.07);
+            border-color: rgba(0, 245, 212, 0.12);
+        }
+        
+        .nav-icon {
+            width: 24px;
+            color: inherit;
+            font-size: 18px;
+            text-align: center;
+        }
+        
+        .sidebar-bottom {
+            margin-top: auto;
+        }
+        
+        .department-box {
+            padding: 14px;
+            background: rgba(255, 255, 255, 0.025);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+        }
+        
+        .department-box span {
+            display: block;
+            margin-bottom: 7px;
+            color: var(--muted);
+            font-size: 7px;
+            letter-spacing: 2px;
+        }
+        
+        .department-box strong {
+            color: var(--gray);
+            font-size: 9px;
+            line-height: 1.5;
+        }
+        
+        .system-status {
+            margin-top: 15px;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            color: var(--muted);
+            font-size: 8px;
+            letter-spacing: 1px;
+        }
+        
+        .system-status span {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--green);
+            box-shadow: 0 0 10px var(--green);
+        }
+        /* ==============================
+MAIN
+============================== */
+        
+        .main {
+            min-height: 100vh;
+            margin-left: var(--sidebar-width);
+            padding: 0 45px;
+        }
+        
+        .topbar {
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .top-label {
+            color: var(--muted);
+            font-size: 8px;
+            letter-spacing: 3px;
+        }
+        
+        .topbar h1 {
+            margin-top: 5px;
+            font-family: "Orbitron", sans-serif;
+            font-size: 25px;
+            letter-spacing: -0.5px;
+        }
+        
+        .top-right {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+        
+        .logout-btn {
+            padding: 8px 12px;
+            border: 1px solid rgba(255, 83, 112, 0.3);
+            border-radius: 8px;
+            background: rgba(255, 83, 112, 0.08);
+            color: #ffb3c0;
+            font-size: 11px;
+            font-weight: 700;
+            transition: 0.2s ease;
+        }
+        
+        .logout-btn:hover {
+            background: rgba(255, 83, 112, 0.16);
+            transform: translateY(-1px);
+        }
+        
+        .date-box {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 3px;
+        }
+        
+        .date-box span {
+            color: var(--muted);
+            font-size: 7px;
+            letter-spacing: 2px;
+        }
+        
+        .date-box strong {
+            color: var(--gray);
+            font-size: 10px;
+        }
+        
+        .admin-avatar {
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: linear-gradient( 135deg, var(--cyan), var(--purple));
+            color: white;
+            font-weight: 800;
+            font-size: 13px;
+        }
+        
+        .mobile-menu {
+            display: none;
+        }
+        /* ==============================
+SECTIONS
+============================== */
+        
+        .section {
+            display: none;
+            padding: 45px 0 70px;
+            animation: sectionAppear 0.35s ease;
+        }
+        
+        .section.active {
+            display: block;
+        }
+        
+        @keyframes sectionAppear {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .section-tag {
+            display: inline-block;
+            padding: 6px 10px;
+            border: 1px solid rgba(0, 245, 212, 0.2);
+            border-radius: 20px;
+            background: rgba(0, 245, 212, 0.04);
+            color: var(--cyan);
+            font-size: 7px;
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+        
+        .section-heading {
+            margin-bottom: 28px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 20px;
+        }
+        
+        .section-heading h2 {
+            margin-top: 12px;
+            font-family: "Orbitron", sans-serif;
+            font-size: 32px;
+        }
+        
+        .section-heading p {
+            margin-top: 8px;
+            color: var(--gray);
+            font-size: 12px;
+        }
+        /* ==============================
+WELCOME
+============================== */
+        
+        .welcome {
+            position: relative;
+            min-height: 220px;
+            padding: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            overflow: hidden;
+            background: linear-gradient( 120deg, rgba(0, 245, 212, 0.07), rgba(118, 87, 255, 0.08));
+            border: 1px solid var(--border);
+            border-radius: 20px;
+        }
+        
+        .welcome h2 {
+            max-width: 650px;
+            margin-top: 17px;
+            font-family: "Orbitron", sans-serif;
+            font-size: clamp(28px, 4vw, 45px);
+            line-height: 1.15;
+        }
+        
+        .welcome h2 span {
+            color: var(--cyan);
+        }
+        
+        .welcome p {
+            max-width: 580px;
+            margin-top: 17px;
+            color: var(--gray);
+            font-size: 13px;
+            line-height: 1.7;
+        }
+        
+        .welcome-decoration {
+            width: 190px;
+            height: 190px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .orbit {
+            position: absolute;
+            border: 1px solid rgba(0, 245, 212, 0.2);
+            border-radius: 50%;
+            animation: rotate 10s linear infinite;
+        }
+        
+        .orbit-1 {
+            width: 180px;
+            height: 180px;
+        }
+        
+        .orbit-2 {
+            width: 120px;
+            height: 120px;
+            border-color: rgba(118, 87, 255, 0.35);
+            animation-direction: reverse;
+            animation-duration: 7s;
+        }
+        
+        .orbit-center {
+            width: 75px;
+            height: 75px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(0, 245, 212, 0.1);
+            border: 1px solid rgba(0, 245, 212, 0.35);
+            color: var(--cyan);
+            font-family: "Orbitron", sans-serif;
+            font-size: 13px;
+            box-shadow: 0 0 40px rgba(0, 245, 212, 0.1);
+        }
+        
+        @keyframes rotate {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        /* ==============================
+STATS
+============================== */
+        
+        .stats-grid {
+            margin-top: 25px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+        }
+        
+        .stat-card {
+            min-height: 120px;
+            padding: 22px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            transition: 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(255, 255, 255, 0.16);
+        }
+        
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            font-size: 20px;
+        }
+        
+        .stat-card.cyan .stat-icon {
+            color: var(--cyan);
+            background: rgba(0, 245, 212, 0.08);
+        }
+        
+        .stat-card.green .stat-icon {
+            color: var(--green);
+            background: rgba(49, 255, 130, 0.08);
+        }
+        
+        .stat-card.red .stat-icon {
+            color: var(--red);
+            background: rgba(255, 83, 112, 0.08);
+        }
+        
+        .stat-card.purple .stat-icon {
+            color: var(--purple);
+            background: rgba(118, 87, 255, 0.08);
+        }
+        
+        .stat-card span {
+            display: block;
+            color: var(--muted);
+            font-size: 7px;
+            letter-spacing: 1.5px;
+        }
+        
+        .stat-card strong {
+            display: block;
+            margin-top: 7px;
+            font-family: "Orbitron", sans-serif;
+            font-size: 25px;
+        }
+        /* ==============================
+DASHBOARD GRID
+============================== */
+        
+        .dashboard-grid {
+            margin-top: 25px;
+            display: grid;
+            grid-template-columns: 1.3fr 0.7fr;
+            gap: 25px;
+        }
+        
+        .panel {
+            padding: 25px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 17px;
+        }
+        
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            margin-bottom: 22px;
+        }
+        
+        .mini-label {
+            color: var(--muted);
+            font-size: 7px;
+            letter-spacing: 2px;
+        }
+        
+        .panel h3 {
+            margin-top: 5px;
+            font-family: "Orbitron", sans-serif;
+            font-size: 16px;
+        }
+        
+        .text-button {
+            border: none;
+            background: none;
+            color: var(--cyan);
+            font-size: 10px;
+            font-weight: 700;
+        }
+        
+        .recent-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .recent-item {
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.025);
+            border: 1px solid transparent;
+            border-radius: 9px;
+        }
+        
+        .recent-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .mini-avatar {
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: linear-gradient( 135deg, rgba(0, 245, 212, 0.15), rgba(118, 87, 255, 0.18));
+            color: var(--cyan);
+            font-size: 11px;
+            font-weight: 700;
+        }
+        
+        .recent-name {
+            font-size: 11px;
+            font-weight: 600;
+        }
+        
+        .recent-roll {
+            margin-top: 3px;
+            color: var(--muted);
+            font-size: 8px;
+        }
+        
+        .marks-badge {
+            padding: 5px 8px;
+            border-radius: 5px;
+            background: rgba(0, 245, 212, 0.07);
+            color: var(--cyan);
+            font-size: 9px;
+            font-weight: 700;
+        }
+        
+        .empty-state {
+            padding: 30px;
+            text-align: center;
+            color: var(--muted);
+            font-size: 11px;
+        }
+        /* ==============================
+ATTENDANCE OVERVIEW
+============================== */
+        
+        .attendance-overview {
+            min-height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            gap: 25px;
+        }
+        
+        .attendance-circle {
+            width: 135px;
+            height: 135px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: radial-gradient( circle, var(--bg2) 56%, transparent 57%), conic-gradient( var(--cyan) 0deg, var(--cyan) 0deg, rgba(255, 255, 255, 0.06) 0deg);
+            box-shadow: 0 0 35px rgba(0, 245, 212, 0.08);
+        }
+        
+        .attendance-circle>div {
+            text-align: center;
+        }
+        
+        .attendance-circle strong {
+            display: block;
+            font-family: "Orbitron", sans-serif;
+            font-size: 22px;
+        }
+        
+        .attendance-circle span {
+            display: block;
+            margin-top: 4px;
+            color: var(--muted);
+            font-size: 8px;
+            letter-spacing: 1px;
+        }
+        
+        .attendance-info {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+        
+        .attendance-info>div {
+            display: grid;
+            grid-template-columns: 10px 60px 30px;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+        }
+        
+        .present-dot {
+            background: var(--green);
+            box-shadow: 0 0 8px var(--green);
+        }
+        
+        .absent-dot {
+            background: var(--red);
+            box-shadow: 0 0 8px var(--red);
+        }
+        
+        .attendance-info label {
+            color: var(--gray);
+            font-size: 9px;
+        }
+        
+        .attendance-info strong {
+            font-size: 11px;
+        }
+        /* ==============================
+BUTTONS
+============================== */
+        
+        .primary-button {
+            padding: 12px 18px;
+            border: none;
+            border-radius: 9px;
+            background: var(--cyan);
+            color: #03100e;
+            font-size: 10px;
+            font-weight: 800;
+            box-shadow: 0 0 25px rgba(0, 245, 212, 0.15);
+            transition: 0.25s ease;
+        }
+        
+        .primary-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 245, 212, 0.22);
+        }
+        
+        .primary-button.large {
+            padding: 15px 30px;
+            font-size: 11px;
+        }
+        
+        .secondary-button {
+            padding: 12px 20px;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            background: transparent;
+            color: var(--gray);
+            font-size: 10px;
+            font-weight: 700;
+            transition: 0.25s;
+        }
+        
+        .secondary-button:hover {
+            border-color: var(--cyan);
+            color: var(--cyan);
+        }
+        /* ==============================
+TOOLBAR
+============================== */
+        
+        .toolbar {
+            margin-bottom: 18px;
+            display: flex;
+            gap: 12px;
+        }
+        
+        .search-box {
+            flex: 1;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 14px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 9px;
+        }
+        
+        .search-box span {
+            color: var(--muted);
+            font-size: 20px;
+        }
+        
+        .search-box input {
+            width: 100%;
+            border: none;
+            outline: none;
+            background: transparent;
+            color: white;
+            font-size: 10px;
+        }
+        
+        .search-box input::placeholder {
+            color: var(--muted);
+        }
+        
+        .toolbar select {
+            width: 150px;
+            padding: 0 12px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            color: var(--gray);
+            outline: none;
+            font-size: 10px;
+        }
+        /* ==============================
+TABLE
+============================== */
+        
+        .table-panel {
+            overflow: hidden;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+        }
+        
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+        
+        th {
+            padding: 16px 18px;
+            background: rgba(255, 255, 255, 0.025);
+            border-bottom: 1px solid var(--border);
+            color: var(--muted);
+            text-align: left;
+            font-size: 7px;
+            letter-spacing: 1.5px;
+            white-space: nowrap;
+        }
+        
+        td {
+            padding: 15px 18px;
+            border-bottom: 1px solid var(--border);
+            color: var(--gray);
+            font-size: 9px;
+        }
+        
+        tr:last-child td {
+            border-bottom: none;
+        }
+        
+        tbody tr {
+            transition: 0.2s;
+        }
+        
+        tbody tr:hover {
+            background: rgba(255, 255, 255, 0.025);
+        }
+        
+        .student-name-cell {
+            color: white;
+            font-weight: 600;
+        }
+        
+        .gender-badge {
+            display: inline-block;
+            padding: 5px 8px;
+            border-radius: 5px;
+            background: rgba(118, 87, 255, 0.08);
+            color: #b4a7ff;
+            font-size: 8px;
+        }
+        
+        .marks-value {
+            color: var(--cyan);
+            font-weight: 700;
+        }
+        
+        .attendance-good {
+            color: var(--green);
+            font-weight: 700;
+        }
+        
+        .attendance-average {
+            color: var(--yellow);
+            font-weight: 700;
+        }
+        
+        .attendance-low {
+            color: var(--red);
+            font-weight: 700;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 7px;
+        }
+        
+        .action-btn {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: transparent;
+            color: var(--gray);
+            font-size: 11px;
+            transition: 0.2s;
+        }
+        
+        .action-btn.edit:hover {
+            border-color: var(--cyan);
+            color: var(--cyan);
+        }
+        
+        .action-btn.delete:hover {
+            border-color: var(--red);
+            color: var(--red);
+        }
+        /* ==============================
+FORM
+============================== */
+        
+        .form-panel {
+            max-width: 900px;
+            padding: 35px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 17px;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 22px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .form-group.full {
+            grid-column: 1 / -1;
+        }
+        
+        .form-group label {
+            color: var(--gray);
+            font-size: 9px;
+            font-weight: 600;
+        }
+        
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            height: 46px;
+            padding: 0 13px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            outline: none;
+            background: rgba(255, 255, 255, 0.025);
+            color: white;
+            font-size: 10px;
+            transition: 0.2s;
+        }
+        
+        .form-group select option {
+            background: var(--bg2);
+            color: white;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: rgba(0, 245, 212, 0.5);
+            box-shadow: 0 0 0 3px rgba(0, 245, 212, 0.05);
+        }
+        
+        .form-group input::placeholder {
+            color: var(--muted);
+        }
+        
+        .form-note {
+            margin-top: 22px;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-radius: 8px;
+            background: rgba(0, 245, 212, 0.04);
+            color: var(--muted);
+            font-size: 9px;
+        }
+        
+        .form-note span {
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(0, 245, 212, 0.1);
+            color: var(--cyan);
+            font-size: 9px;
+        }
+        
+        .form-actions {
+            margin-top: 28px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        /* ==============================
+ATTENDANCE
+============================== */
+        
+        .attendance-date {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .attendance-subjects {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .attendance-subjects label,
+        .attendance-date label {
+            color: var(--muted);
+            font-size: 8px;
+            letter-spacing: 1px;
+        }
+        
+        .subject-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .subject-button {
+            padding: 9px 12px;
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.02);
+            color: var(--gray);
+            font-size: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+        
+        .subject-button:hover {
+            transform: translateY(-1px);
+            border-color: rgba(0, 245, 212, 0.45);
+        }
+        
+        .subject-button.active {
+            background: linear-gradient(135deg, rgba(0, 245, 212, 0.18), rgba(118, 87, 255, 0.18));
+            border-color: rgba(0, 245, 212, 0.7);
+            color: var(--cyan);
+            box-shadow: 0 0 0 1px rgba(0, 245, 212, 0.18);
+        }
+        
+        .attendance-date input {
+            padding: 10px 12px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--gray);
+            outline: none;
+            font-size: 9px;
+        }
+        
+        .attendance-actions {
+            margin-bottom: 18px;
+            padding: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 13px;
+        }
+        
+        .attendance-summary {
+            display: flex;
+            gap: 35px;
+        }
+        
+        .attendance-summary>div {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .summary-label {
+            color: var(--muted);
+            font-size: 7px;
+            letter-spacing: 1.5px;
+        }
+        
+        .attendance-summary strong {
+            font-family: "Orbitron", sans-serif;
+            font-size: 20px;
+        }
+        
+        .quick-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .small-button {
+            padding: 9px 12px;
+            border-radius: 7px;
+            font-size: 8px;
+            font-weight: 700;
+            transition: 0.2s;
+        }
+        
+        .present-all {
+            border: 1px solid rgba(49, 255, 130, 0.2);
+            background: rgba(49, 255, 130, 0.06);
+            color: var(--green);
+        }
+        
+        .absent-all {
+            border: 1px solid rgba(255, 83, 112, 0.2);
+            background: rgba(255, 83, 112, 0.06);
+            color: var(--red);
+        }
+        
+        .small-button:hover {
+            transform: translateY(-2px);
+        }
+        
+        .attendance-panel {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        
+        .attendance-row {
+            min-height: 72px;
+            padding: 12px 20px;
+            display: grid;
+            grid-template-columns: 60px 1fr 130px 150px;
+            align-items: center;
+            gap: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .attendance-row:last-child {
+            border-bottom: none;
+        }
+        
+        .attendance-roll {
+            color: var(--muted);
+            font-family: "Orbitron", sans-serif;
+            font-size: 9px;
+        }
+        
+        .attendance-student {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .attendance-avatar {
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: linear-gradient( 135deg, rgba(0, 245, 212, 0.1), rgba(118, 87, 255, 0.12));
+            color: var(--cyan);
+            font-size: 10px;
+            font-weight: 700;
+        }
+        
+        .attendance-student strong {
+            display: block;
+            color: white;
+            font-size: 10px;
+        }
+        
+        .attendance-student small {
+            display: block;
+            margin-top: 3px;
+            color: var(--muted);
+            font-size: 7px;
+        }
+        
+        .attendance-percentage {
+            color: var(--gray);
+            font-size: 8px;
+        }
+        
+        .attendance-buttons {
+            display: flex;
+            gap: 7px;
+            position: relative;
+            z-index: 2;
+            pointer-events: auto !important;
+        }
+        
+        .att-btn {
+            flex: 1;
+            padding: 8px 6px;
+            border-radius: 6px;
+            font-size: 8px;
+            font-weight: 700;
+            transition: 0.2s;
+            cursor: pointer;
+            pointer-events: auto !important;
+            position: relative;
+            z-index: 3;
+        }
+        
+        button {
+            pointer-events: auto !important;
+        }
+        
+        .att-btn.present {
+            border: 1px solid rgba(49, 255, 130, 0.2);
+            background: rgba(49, 255, 130, 0.04);
+            color: var(--green);
+        }
+        
+        .att-btn.absent {
+            border: 1px solid rgba(255, 83, 112, 0.2);
+            background: rgba(255, 83, 112, 0.04);
+            color: var(--red);
+        }
+        
+        .att-btn.selected.present {
+            background: rgba(49, 255, 130, 0.16);
+            border-color: var(--green);
+            box-shadow: 0 0 15px rgba(49, 255, 130, 0.1);
+        }
+        
+        .att-btn.selected.absent {
+            background: rgba(255, 83, 112, 0.16);
+            border-color: var(--red);
+            box-shadow: 0 0 15px rgba(255, 83, 112, 0.1);
+        }
+        
+        .save-attendance-wrapper {
+            margin-top: 20px;
+            display: flex;
+            justify-content: flex-end;
+        }
+        /* ==============================
+REPORTS
+============================== */
+        
+        .report-cards {
+            margin-bottom: 25px;
+            display: grid;
+            grid-template-columns: repeat(7, minmax(130px, 1fr));
+            gap: 18px;
+            align-items: stretch;
+        }
+        
+        .report-card {
+            min-height: 120px;
+            padding: 18px 16px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 13px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .report-card span {
+            color: var(--muted);
+            font-size: 7px;
+            letter-spacing: 1.5px;
+        }
+        
+        .report-card strong {
+            display: block;
+            margin-top: 12px;
+            color: var(--cyan);
+            font-family: "Orbitron", sans-serif;
+            font-size: 22px;
+            line-height: 1.2;
+        }
+        
+        .report-card small {
+            display: block;
+            margin-top: 5px;
+            color: var(--muted);
+            font-size: 8px;
+            line-height: 1.4;
+        }
+        
+        .report-table-panel {
+            padding: 0;
+            overflow: hidden;
+        }
+        
+        .report-table-panel .panel-header {
+            padding: 22px 25px;
+            margin-bottom: 0;
+        }
+        /* ==============================
+FOOTER
+============================== */
+        
+        footer {
+            padding: 35px 0 40px;
+            text-align: center;
+            border-top: 1px solid var(--border);
+            color: var(--muted);
+        }
+        
+        .footer-logo {
+            font-family: "Orbitron", sans-serif;
+            color: white;
+            font-size: 16px;
+        }
+        
+        .footer-logo span {
+            color: var(--cyan);
+        }
+        
+        footer p {
+            margin-top: 7px;
+            font-size: 9px;
+        }
+        
+        footer small {
+            display: block;
+            margin-top: 10px;
+            font-size: 8px;
+        }
+        /* ==============================
+TOAST
+============================== */
+        
+        .toast {
+            position: fixed;
+            right: 25px;
+            bottom: 25px;
+            padding: 13px 17px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(12, 19, 40, 0.95);
+            border: 1px solid rgba(0, 245, 212, 0.25);
+            border-radius: 9px;
+            color: white;
+            font-size: 10px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+            transform: translateY(120px);
+            opacity: 0;
+            transition: 0.3s ease;
+            z-index: 500;
+        }
+        
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .toast-icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(0, 245, 212, 0.12);
+            color: var(--cyan);
+            font-weight: 800;
+        }
+        /* ==============================
+RESPONSIVE
+============================== */
+        
+        @media (max-width: 1100px) {
+            .main {
+                padding: 0 25px;
+            }
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            .report-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .welcome-decoration {
+                display: none;
+            }
+        }
+        
+        @media (max-width: 800px) {
+             :root {
+                --sidebar-width: 0px;
+            }
+            .sidebar {
+                width: 260px;
+                transform: translateX(-100%);
+                transition: 0.3s ease;
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            .main {
+                margin-left: 0;
+                padding: 0 18px;
+            }
+            .mobile-menu {
+                display: block;
+                margin-right: 15px;
+                color: var(--cyan);
+                font-size: 21px;
+                cursor: pointer;
+            }
+            .topbar {
+                min-height: 80px;
+            }
+            .topbar>div:first-of-type {
+                flex: 1;
+            }
+            .top-label {
+                display: none;
+            }
+            .topbar h1 {
+                font-size: 19px;
+            }
+            .date-box {
+                display: none;
+            }
+            .section {
+                padding-top: 30px;
+            }
+            .section-heading {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            .form-group.full {
+                grid-column: auto;
+            }
+            .attendance-actions {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+            .attendance-row {
+                grid-template-columns: 45px 1fr;
+                gap: 10px;
+            }
+            .attendance-percentage {
+                display: none;
+            }
+            .attendance-buttons {
+                grid-column: 2;
+            }
+            .quick-actions {
+                width: 100%;
+            }
+            .quick-actions button {
+                flex: 1;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            .welcome {
+                padding: 25px;
+                min-height: 200px;
+            }
+            .welcome h2 {
+                font-size: 27px;
+            }
+            .panel {
+                padding: 18px;
+            }
+            .toolbar {
+                flex-direction: column;
+            }
+            .toolbar select {
+                width: 100%;
+                height: 42px;
+            }
+            .form-panel {
+                padding: 20px;
+            }
+            .form-actions {
+                flex-direction: column-reverse;
+            }
+            .form-actions button {
+                width: 100%;
+            }
+            .attendance-summary {
+                width: 100%;
+                justify-content: space-between;
+                gap: 10px;
+            }
+            .attendance-date {
+                width: 100%;
+                justify-content: space-between;
+            }
+            .attendance-date input {
+                flex: 1;
+            }
+            .report-cards {
+                grid-template-columns: 1fr;
+            }
+            .toast {
+                left: 15px;
+                right: 15px;
+                bottom: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!DOCTYPE html>
+
+    <html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>ECE Student Management System</title>
+
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Orbitron:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+        <link rel="stylesheet" href="style.css">
+
+    </head>
+
+    <body>
+
+        <div class="login-screen" id="loginScreen">
+            <div class="login-card">
+                <div class="login-brand">
+                    <div class="brand-icon">E</div>
+                    <div>
+                        <h2>ECE<span>•SMS</span></h2>
+                        <small>CLASS TEACHER LOGIN</small>
+                    </div>
+                </div>
+
+                <form id="teacherLoginForm" class="teacher-login-form">
+                    <div class="login-form-group">
+                        <label for="teacherUsername">Username</label>
+                        <input type="text" id="teacherUsername" placeholder="Enter username" required>
+                    </div>
+
+                    <div class="login-form-group">
+                        <label for="teacherYear">Year</label>
+                        <select id="teacherYear" required>
+                        <option value="">Select year</option>
+                        <option value="1st Year">1st Year</option>
+                        <option value="2nd Year">2nd Year</option>
+                        <option value="3rd Year">3rd Year</option>
+                        <option value="4th Year">4th Year</option>
+                    </select>
+                    </div>
+
+                    <div class="login-form-group">
+                        <label for="teacherName">Name</label>
+                        <input type="text" id="teacherName" placeholder="Enter your name" required>
+                    </div>
+
+                    <button type="submit" class="primary-button login-button">Login</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="appShell">
+
+            <!-- Background -->
+            <div class="background">
+                <div class="grid"></div>
+                <div class="glow glow-one"></div>
+                <div class="glow glow-two"></div>
+            </div>
+
+
+            <!-- SIDEBAR -->
+            <aside class="sidebar" id="sidebar">
+
+                <div class="brand">
+                    <div class="brand-icon">E</div>
+
+                    <div>
+                        <h2>ECE<span>•SMS</span></h2>
+                        <small>STUDENT SYSTEM</small>
+                    </div>
+                </div>
+
+
+                <nav class="navigation">
+
+                    <button class="nav-item active" data-section="dashboard">
+            <span class="nav-icon">⌂</span>
+            <span>Dashboard</span>
+        </button>
+
+                    <button class="nav-item" data-section="students">
+            <span class="nav-icon">♙</span>
+            <span>Students</span>
+        </button>
+
+                    <button class="nav-item" data-section="add-student">
+            <span class="nav-icon">＋</span>
+            <span>Add Student</span>
+        </button>
+
+                    <button class="nav-item" data-section="attendance">
+            <span class="nav-icon">✓</span>
+            <span>Attendance</span>
+        </button>
+
+                    <button class="nav-item" data-section="reports">
+            <span class="nav-icon">▥</span>
+            <span>Reports</span>
+        </button>
+
+                </nav>
+
+
+                <div class="sidebar-bottom">
+
+                    <div class="department-box">
+                        <span>DEPARTMENT</span>
+                        <strong>Electronics & Computer Engineering</strong>
+                    </div>
+
+                    <div class="system-status">
+                        <span></span> System Online
+                    </div>
+
+                </div>
+
+            </aside>
+
+
+            <!-- MAIN CONTENT -->
+            <main class="main">
+
+                <!-- TOP BAR -->
+                <header class="topbar">
+
+                    <div class="mobile-menu" id="mobileMenu">
+                        ☰
+                    </div>
+
+                    <div>
+                        <p class="top-label">STUDENT MANAGEMENT SYSTEM</p>
+                        <h1 id="pageTitle">Dashboard</h1>
+                    </div>
+
+                    <div class="top-right">
+
+                        <div class="date-box">
+                            <span>DATE</span>
+                            <strong id="currentDate"></strong>
+                        </div>
+
+                        <button class="logout-btn" id="logoutBtn" type="button">Logout</button>
+
+                        <div class="admin-avatar">
+                            A
+                        </div>
+
+                    </div>
+
+                </header>
+
+
+                <!-- ================= DASHBOARD ================= -->
+
+                <section class="section active" id="dashboard">
+
+                    <div class="welcome">
+
+                        <div>
+                            <span class="section-tag">ECE • ACADEMIC PORTAL</span>
+
+                            <h2>
+                                Welcome to your
+                                <span>Student Dashboard</span>
+                            </h2>
+
+                            <p>
+                                Manage student records, academic marks and class attendance from one place.
+                            </p>
+                        </div>
+
+                        <div class="welcome-decoration">
+                            <div class="orbit orbit-1"></div>
+                            <div class="orbit orbit-2"></div>
+                            <div class="orbit-center">ECE</div>
+                        </div>
+
+                    </div>
+
+
+                    <!-- STAT CARDS -->
+
+                    <div class="stats-grid">
+
+                        <div class="stat-card cyan">
+
+                            <div class="stat-icon">♙</div>
+
+                            <div>
+                                <span>TOTAL STUDENTS</span>
+                                <strong id="totalStudents">0</strong>
+                            </div>
+
+                        </div>
+
+
+                        <div class="stat-card green">
+
+                            <div class="stat-icon">✓</div>
+
+                            <div>
+                                <span>PRESENT TODAY</span>
+                                <strong id="presentToday">0</strong>
+                            </div>
+
+                        </div>
+
+
+                        <div class="stat-card red">
+
+                            <div class="stat-icon">!</div>
+
+                            <div>
+                                <span>ABSENT TODAY</span>
+                                <strong id="absentToday">0</strong>
+                            </div>
+
+                        </div>
+
+
+                        <div class="stat-card purple">
+
+                            <div class="stat-icon">%</div>
+
+                            <div>
+                                <span>AVERAGE MARKS</span>
+                                <strong id="averageMarks">0%</strong>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- DASHBOARD CONTENT -->
+
+                    <div class="dashboard-grid">
+
+                        <div class="panel">
+
+                            <div class="panel-header">
+
+                                <div>
+                                    <span class="mini-label">LATEST</span>
+                                    <h3>Recent Students</h3>
+                                </div>
+
+                                <button class="text-button" data-section-target="students">
+                        View All →
+                    </button>
+
+                            </div>
+
+                            <div class="recent-list" id="recentStudents">
+                                <div class="empty-state">
+                                    No students added yet.
+                                </div>
+                            </div>
+
+                        </div>
+
+
+                        <div class="panel">
+
+                            <div class="panel-header">
+
+                                <div>
+                                    <span class="mini-label">OVERVIEW</span>
+                                    <h3>Attendance Status</h3>
+                                </div>
+
+                            </div>
+
+                            <div class="attendance-overview">
+
+                                <div class="attendance-circle">
+                                    <div>
+                                        <strong id="attendancePercent">0%</strong>
+                                        <span>Overall</span>
+                                    </div>
+                                </div>
+
+                                <div class="attendance-info">
+
+                                    <div>
+                                        <span class="dot present-dot"></span>
+                                        <label>Present</label>
+                                        <strong id="overviewPresent">0</strong>
+                                    </div>
+
+                                    <div>
+                                        <span class="dot absent-dot"></span>
+                                        <label>Absent</label>
+                                        <strong id="overviewAbsent">0</strong>
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- ================= STUDENTS ================= -->
+
+                <section class="section" id="students">
+
+                    <div class="section-heading">
+
+                        <div>
+                            <span class="section-tag">DATABASE</span>
+                            <h2>Student Records</h2>
+                            <p>Manage all registered students.</p>
+                        </div>
+
+                        <button class="primary-button" data-section-target="add-student">
+                + Add Student
+            </button>
+
+                    </div>
+
+
+                    <div class="toolbar">
+
+                        <div class="search-box">
+                            <span>⌕</span>
+                            <input type="text" id="searchInput" placeholder="Search by name, roll no. or enrollment no...">
+                        </div>
+
+                        <select id="genderFilter">
+                <option value="all">All Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+            </select>
+
+                    </div>
+
+
+                    <div class="table-panel">
+
+                        <div class="table-wrapper">
+
+                            <table>
+
+                                <thead>
+
+                                    <tr>
+                                        <th>ROLL</th>
+                                        <th>ENROLLMENT NO.</th>
+                                        <th>NAME</th>
+                                        <th>GENDER</th>
+                                        <th>MARKS</th>
+                                        <th>ATTENDANCE</th>
+                                        <th>ACTION</th>
+                                    </tr>
+
+                                </thead>
+
+                                <tbody id="studentTableBody"></tbody>
+
+                            </table>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- ================= ADD STUDENT ================= -->
+
+                <section class="section" id="add-student">
+
+                    <div class="section-heading">
+
+                        <div>
+                            <span class="section-tag">REGISTRATION</span>
+                            <h2 id="formTitle">Add New Student</h2>
+                            <p>Enter student academic information.</p>
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-panel">
+
+                        <form id="studentForm">
+
+                            <input type="hidden" id="editId">
+
+
+                            <div class="form-grid">
+
+                                <div class="form-group full">
+                                    <label>Student Full Name</label>
+
+                                    <input type="text" id="studentName" placeholder="Enter student's full name" required>
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label>Roll Number</label>
+
+                                    <input type="text" id="rollNo" placeholder="e.g. 01" required>
+
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label>Enrollment Number</label>
+
+                                    <input type="text" id="enrollmentNo" placeholder="e.g. EN2026001" required>
+
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label>Gender</label>
+
+                                    <select id="gender" required>
+
+                            <option value="">
+                                Select Gender
+                            </option>
+
+                            <option value="Male">
+                                Male
+                            </option>
+
+                            <option value="Female">
+                                Female
+                            </option>
+
+                            <option value="Other">
+                                Other
+                            </option>
+
+                        </select>
+
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label>Marks</label>
+
+                                    <input type="number" id="marks" placeholder="Enter marks" min="0" max="100" required>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="form-note">
+                                <span>i</span> Marks should be entered as a percentage out of 100.
+                            </div>
+
+
+                            <div class="form-actions">
+
+                                <button type="button" class="secondary-button" id="clearForm">
+                        Clear
+                    </button>
+
+                                <button type="submit" class="primary-button">
+                        <span id="submitText">Add Student</span>
+                    </button>
+
+                            </div>
+
+                        </form>
+
+                    </div>
+
+                </section>
+
+
+                <!-- ================= ATTENDANCE ================= -->
+
+                <section class="section" id="attendance">
+
+                    <div class="section-heading">
+
+                        <div>
+                            <span class="section-tag">DAILY REGISTER</span>
+                            <h2>Class Attendance</h2>
+                            <p>Mark attendance for the entire class.</p>
+                        </div>
+
+                        <div class="attendance-subjects">
+
+                            <label>Subject</label>
+
+                            <div class="subject-buttons">
+                                <button type="button" class="subject-button active" data-subject="Data Analytics">Data Analytics</button>
+                                <button type="button" class="subject-button" data-subject="Embedded System">Embedded System</button>
+                                <button type="button" class="subject-button" data-subject="Operating System">Operating System</button>
+                            </div>
+
+                        </div>
+
+                        <div class="attendance-date">
+
+                            <label>Date</label>
+
+                            <input type="date" id="attendanceDate">
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="attendance-actions">
+
+                        <div class="attendance-summary">
+
+                            <div>
+                                <span class="summary-label">Present Students</span>
+                                <strong id="attendancePresent">0</strong>
+                            </div>
+
+                            <div>
+                                <span class="summary-label">Absent Students</span>
+                                <strong id="attendanceAbsent">0</strong>
+                            </div>
+
+                            <div>
+                                <span class="summary-label">Total Students</span>
+                                <strong id="attendanceTotal">0</strong>
+                            </div>
+
+                        </div>
+
+
+                        <div class="quick-actions">
+
+                            <button class="small-button present-all" id="presentAll">
+                    ✓ Mark All Present
+                </button>
+
+                            <button class="small-button absent-all" id="absentAll">
+                    × Mark All Absent
+                </button>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="attendance-panel">
+
+                        <div id="attendanceList"></div>
+
+                    </div>
+
+
+                    <div class="save-attendance-wrapper">
+
+                        <button class="primary-button large" id="saveAttendance">
+                Save Attendance
+            </button>
+
+                    </div>
+
+                </section>
+
+
+                <!-- ================= REPORTS ================= -->
+
+                <section class="section" id="reports">
+
+                    <div class="section-heading">
+
+                        <div>
+                            <span class="section-tag">ANALYTICS</span>
+                            <h2>Academic Reports</h2>
+                            <p>Class performance and attendance overview.</p>
+                        </div>
+
+                    </div>
+
+
+                    <div class="report-cards">
+
+                        <div class="report-card">
+                            <span>CLASS AVERAGE</span>
+                            <strong id="reportAverage">0%</strong>
+                            <small>Average marks</small>
+                        </div>
+
+                        <div class="report-card">
+                            <span>ATTENDANCE</span>
+                            <strong id="reportAttendance">0%</strong>
+                            <small>Overall attendance</small>
+                        </div>
+
+                        <div class="report-card">
+                            <span>DATA ANALYTICS</span>
+                            <strong id="dataAnalyticsAttendance">0%</strong>
+                            <small>Subject attendance</small>
+                        </div>
+
+                        <div class="report-card">
+                            <span>EMBEDDED SYSTEM</span>
+                            <strong id="embeddedSystemAttendance">0%</strong>
+                            <small>Subject attendance</small>
+                        </div>
+
+                        <div class="report-card">
+                            <span>OPERATING SYSTEM</span>
+                            <strong id="operatingSystemAttendance">0%</strong>
+                            <small>Subject attendance</small>
+                        </div>
+
+                        <div class="report-card">
+                            <span>MALE STUDENTS</span>
+                            <strong id="maleCount">0</strong>
+                            <small>Registered students</small>
+                        </div>
+
+                        <div class="report-card">
+                            <span>FEMALE STUDENTS</span>
+                            <strong id="femaleCount">0</strong>
+                            <small>Registered students</small>
+                        </div>
+
+                    </div>
+
+
+                    <div class="panel report-table-panel">
+
+                        <div class="panel-header">
+
+                            <div>
+                                <span class="mini-label">PERFORMANCE</span>
+                                <h3>Student Performance</h3>
+                            </div>
+
+                        </div>
+
+
+                        <div class="table-wrapper">
+
+                            <table>
+
+                                <thead>
+
+                                    <tr>
+                                        <th>RANK</th>
+                                        <th>STUDENT</th>
+                                        <th>ROLL</th>
+                                        <th>MARKS</th>
+                                        <th>ATTENDANCE</th>
+                                        <th>STATUS</th>
+                                    </tr>
+
+                                </thead>
+
+                                <tbody id="reportTableBody"></tbody>
+
+                            </table>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- FOOTER -->
+
+                <footer>
+
+                    <div class="footer-logo">
+                        ECE<span>•SMS</span>
+                    </div>
+
+                    <p>
+                        Electronics & Computer Engineering
+                    </p>
+
+                    <small>
+            Student Management System • 2026
+        </small>
+
+                </footer>
+
+            </main>
+
+
+            <!-- TOAST -->
+            <div class="toast" id="toast">
+                <span class="toast-icon">✓</span>
+                <span id="toastMessage">Success</span>
+            </div>
+
+        </div>
+
+        <script src="script.js"></script>
+
+    </body>
+
+    </html>
+
+    <script>
+        /* =========================================================
+           ECE STUDENT MANAGEMENT SYSTEM
+           UPDATED ATTENDANCE SYSTEM
+           ========================================================= */
+
+
+        /* =========================================================
+           DATA
+           ========================================================= */
+
+        const YEAR_DATA = {
+            "1st Year": [{
+                id: "1",
+                rollNo: "1",
+                enrollmentNo: "FSE-101",
+                name: "ARAV PATEL",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "1st Year"
+            }, {
+                id: "2",
+                rollNo: "2",
+                enrollmentNo: "FSE-102",
+                name: "DIYA SHARMA",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "1st Year"
+            }, {
+                id: "3",
+                rollNo: "3",
+                enrollmentNo: "FSE-103",
+                name: "RUSHIKESH JADHAV",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "1st Year"
+            }, {
+                id: "4",
+                rollNo: "4",
+                enrollmentNo: "FSE-104",
+                name: "SNEHA MORE",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "1st Year"
+            }, {
+                id: "5",
+                rollNo: "5",
+                enrollmentNo: "FSE-105",
+                name: "YASH KULKARNI",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "1st Year"
+            }],
+            "2nd Year": [{
+                id: "1",
+                rollNo: "1",
+                enrollmentNo: "25210990411",
+                name: "SUTAR ANKITA KISHOR (CE to TE)",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "2nd Year"
+            }, {
+                id: "2",
+                rollNo: "2",
+                enrollmentNo: "25210990421",
+                name: "JAMDAR PRANALI SHANKAR (CE to TE)",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "2nd Year"
+            }, {
+                id: "3",
+                rollNo: "3",
+                enrollmentNo: "25210990437",
+                name: "POWAR RIDDHI UMESH (CE to TE)",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "2nd Year"
+            }, {
+                id: "4",
+                rollNo: "4",
+                enrollmentNo: "25210990543",
+                name: "KAMBLE ATHARV DHANRAJ (EE to TE)",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "2nd Year"
+            }, {
+                id: "5",
+                rollNo: "5",
+                enrollmentNo: "25210990715",
+                name: "INGALE SURABHI SUBHASH",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "2nd Year"
+            }, {
+                id: "6",
+                rollNo: "6",
+                enrollmentNo: "25210990716",
+                name: "AWALE SOHAM SANDEEP",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "2nd Year"
+            }, {
+                id: "7",
+                rollNo: "7",
+                enrollmentNo: "25210990717",
+                name: "SUTAR ATHARVA SACHIN",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "2nd Year"
+            }, {
+                id: "8",
+                rollNo: "8",
+                enrollmentNo: "25210990718",
+                name: "BHUKEBAG OMKAR SANTOSH",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "2nd Year"
+            }, {
+                id: "9",
+                rollNo: "9",
+                enrollmentNo: "25210990719",
+                name: "BOMBADE KAMLESH SHARAD",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "2nd Year"
+            }, {
+                id: "10",
+                rollNo: "10",
+                enrollmentNo: "25210990722",
+                name: "SALOKHE VEDIKA AMAR",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "2nd Year"
+            }, {
+                id: "11",
+                rollNo: "11",
+                enrollmentNo: "25210990723",
+                name: "GAJJAR PAVAN PRAVIN",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "2nd Year"
+            }, {
+                id: "12",
+                rollNo: "12",
+                enrollmentNo: "25210990724",
+                name: "ROTE HARSHAD DIPAK",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "2nd Year"
+            }, {
+                id: "13",
+                rollNo: "13",
+                enrollmentNo: "25210990725",
+                name: "GOD YOGESH SANDEEP",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "2nd Year"
+            }, {
+                id: "14",
+                rollNo: "14",
+                enrollmentNo: "25210990726",
+                name: "MANE SUSHIL ANANDA",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "2nd Year"
+            }, {
+                id: "15",
+                rollNo: "15",
+                enrollmentNo: "25210990727",
+                name: "JADHAV SHREYA SUNIL",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "2nd Year"
+            }, {
+                id: "16",
+                rollNo: "16",
+                enrollmentNo: "25210990728",
+                name: "KADAM VAISHNVI VINAYAK",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "2nd Year"
+            }, {
+                id: "17",
+                rollNo: "17",
+                enrollmentNo: "25210990729",
+                name: "PATIL ARCHITA JANARDHAN",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "2nd Year"
+            }, {
+                id: "18",
+                rollNo: "18",
+                enrollmentNo: "25210990730",
+                name: "BIDKAR GARGI PRABHAKAR",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "2nd Year"
+            }, {
+                id: "19",
+                rollNo: "19",
+                enrollmentNo: "25210990731",
+                name: "KOLI SAMRUDDHI ARJUN",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "2nd Year"
+            }, {
+                id: "20",
+                rollNo: "20",
+                enrollmentNo: "25210990732",
+                name: "PATIL VED ABHIJIT",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "2nd Year"
+            }, {
+                id: "21",
+                rollNo: "21",
+                enrollmentNo: "25210990733",
+                name: "SHIRKAR ANUSHKA PRAVIN",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "2nd Year"
+            }, {
+                id: "22",
+                rollNo: "22",
+                enrollmentNo: "25210990734",
+                name: "KUMBHAR SHIVANI SHIVAJI",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "2nd Year"
+            }, {
+                id: "23",
+                rollNo: "23",
+                enrollmentNo: "25210990735",
+                name: "SUTAR SHRADHYA SUNIL",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "2nd Year"
+            }, {
+                id: "24",
+                rollNo: "24",
+                enrollmentNo: "25210990736",
+                name: "PATEL TAKDUS SAMIR",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "2nd Year"
+            }, {
+                id: "25",
+                rollNo: "25",
+                enrollmentNo: "25210990737",
+                name: "DEVANE NIKHIL SAKHARAM",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "2nd Year"
+            }, {
+                id: "26",
+                rollNo: "26",
+                enrollmentNo: "25210990738",
+                name: "JAVALE SAKSHI SUBHASH",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "2nd Year"
+            }, {
+                id: "27",
+                rollNo: "27",
+                enrollmentNo: "25210990739",
+                name: "SUTAR RUJUTA YUVRAJ",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "2nd Year"
+            }, {
+                id: "28",
+                rollNo: "28",
+                enrollmentNo: "25210990740",
+                name: "KULKARNI CHAITANYA RAMCHANDRA",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "2nd Year"
+            }, {
+                id: "29",
+                rollNo: "29",
+                enrollmentNo: "25210990741",
+                name: "BAMANE ANKITA SHRIRANT",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "2nd Year"
+            }, {
+                id: "30",
+                rollNo: "30",
+                enrollmentNo: "25210990742",
+                name: "NAKADE ASHIYA AMIN",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "2nd Year"
+            }, {
+                id: "31",
+                rollNo: "31",
+                enrollmentNo: "25210990743",
+                name: "KURTALE SANKS RAMEER",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "2nd Year"
+            }, {
+                id: "32",
+                rollNo: "32",
+                enrollmentNo: "25210990744",
+                name: "BALEKHAN SAMIYA YASIN",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "2nd Year"
+            }, {
+                id: "33",
+                rollNo: "33",
+                enrollmentNo: "25210990746",
+                name: "SUTAR SHREYA SUDAM",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "2nd Year"
+            }, {
+                id: "34",
+                rollNo: "34",
+                enrollmentNo: "25210990747",
+                name: "ASHETKAR OJAS GURUDATTA",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "2nd Year"
+            }, {
+                id: "35",
+                rollNo: "35",
+                enrollmentNo: "25210990748",
+                name: "SHAIKH RIDA MUSTAFA",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "2nd Year"
+            }, {
+                id: "36",
+                rollNo: "36",
+                enrollmentNo: "25210990749",
+                name: "GANDHE SAVI VIKRAM",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "2nd Year"
+            }, {
+                id: "37",
+                rollNo: "37",
+                enrollmentNo: "25210990750",
+                name: "RASANKAR PRANJALI AJAY",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "2nd Year"
+            }, {
+                id: "38",
+                rollNo: "38",
+                enrollmentNo: "25210990751",
+                name: "KAMBLE PAYAL BHIKAJI",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "2nd Year"
+            }, {
+                id: "39",
+                rollNo: "39",
+                enrollmentNo: "25210990752",
+                name: "JADHAV DHANSHREE SAMPAT",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "2nd Year"
+            }, {
+                id: "40",
+                rollNo: "40",
+                enrollmentNo: "25210990753",
+                name: "SHINDE PUNAM SIDDHESHWAR",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "2nd Year"
+            }, {
+                id: "41",
+                rollNo: "41",
+                enrollmentNo: "25210990754",
+                name: "PATIL SHARVARI SACHIN",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "2nd Year"
+            }, {
+                id: "42",
+                rollNo: "42",
+                enrollmentNo: "25210990755",
+                name: "KHADE NAYANA NAVNATH",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "2nd Year"
+            }, {
+                id: "43",
+                rollNo: "43",
+                enrollmentNo: "25210990757",
+                name: "YADAV ATHARV SACHIN",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "2nd Year"
+            }, {
+                id: "44",
+                rollNo: "44",
+                enrollmentNo: "25210990758",
+                name: "PADAVAL SHREYA YASHVANT",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "2nd Year"
+            }, {
+                id: "45",
+                rollNo: "45",
+                enrollmentNo: "25210990759",
+                name: "MIRAJKAR OJAS AMIT",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "2nd Year"
+            }, {
+                id: "46",
+                rollNo: "46",
+                enrollmentNo: "25210990760",
+                name: "PATIL ATHARV ABHIJIT",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "2nd Year"
+            }, {
+                id: "47",
+                rollNo: "47",
+                enrollmentNo: "25210990761",
+                name: "HUKIRE SHRUTI SANDIP",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "2nd Year"
+            }, {
+                id: "48",
+                rollNo: "48",
+                enrollmentNo: "25210990762",
+                name: "VARUTE ATHARV EKNATH",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "2nd Year"
+            }, {
+                id: "49",
+                rollNo: "49",
+                enrollmentNo: "25210990763",
+                name: "KHOT POURNIMA JAYAPAL",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "2nd Year"
+            }, {
+                id: "50",
+                rollNo: "50",
+                enrollmentNo: "25210990764",
+                name: "PATIL SARYUDHYA AMOL",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "2nd Year"
+            }, {
+                id: "51",
+                rollNo: "51",
+                enrollmentNo: "25210990765",
+                name: "SARVALE PRANAY SANJAY",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "2nd Year"
+            }, {
+                id: "52",
+                rollNo: "52",
+                enrollmentNo: "25210990766",
+                name: "KORAVI TAPASU SURESH",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "2nd Year"
+            }, {
+                id: "53",
+                rollNo: "53",
+                enrollmentNo: "25210990767",
+                name: "MADNAIK PRANITI SACHIN",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "2nd Year"
+            }, {
+                id: "54",
+                rollNo: "54",
+                enrollmentNo: "25210990768",
+                name: "MOHITE SANGRAMSINH SUSHANT",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "2nd Year"
+            }, {
+                id: "55",
+                rollNo: "55",
+                enrollmentNo: "25210990769",
+                name: "GAIKWAD JAYDEEP PRAKASH",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "2nd Year"
+            }, {
+                id: "56",
+                rollNo: "56",
+                enrollmentNo: "25210990770",
+                name: "CHOUGULE KARTIK SAGAR",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "2nd Year"
+            }, {
+                id: "57",
+                rollNo: "57",
+                enrollmentNo: "25210990771",
+                name: "PANDAR SHRADDHA SANDIP",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "2nd Year"
+            }, {
+                id: "58",
+                rollNo: "58",
+                enrollmentNo: "25210990772",
+                name: "SAWANT SHARV AMAR",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "2nd Year"
+            }, {
+                id: "59",
+                rollNo: "59",
+                enrollmentNo: "25210990773",
+                name: "TIPPY SHUBHAM SHIVAJI",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "2nd Year"
+            }, {
+                id: "60",
+                rollNo: "60",
+                enrollmentNo: "25210990774",
+                name: "BHOSALE VAISHNAVI NETAJI",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "2nd Year"
+            }, {
+                id: "61",
+                rollNo: "61",
+                enrollmentNo: "25210990775",
+                name: "MALI MANASVI SUNIL",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "2nd Year"
+            }, {
+                id: "62",
+                rollNo: "62",
+                enrollmentNo: "25210990776",
+                name: "SATHE SIDDHI VIVEK",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "2nd Year"
+            }, {
+                id: "63",
+                rollNo: "63",
+                enrollmentNo: "25210990777",
+                name: "GONDHALI RAJVEER PRADIP",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "2nd Year"
+            }, {
+                id: "64",
+                rollNo: "64",
+                enrollmentNo: "25210990778",
+                name: "SUTAR AVADHUT NITIN",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "2nd Year"
+            }, {
+                id: "65",
+                rollNo: "65",
+                enrollmentNo: "25210990779",
+                name: "LOKHANDE PRATIKSHA PARASHRAM",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "2nd Year"
+            }],
+            "3rd Year": [{
+                id: "1",
+                rollNo: "1",
+                enrollmentNo: "23210990877",
+                name: "ADITYA GIRISH DOULAD",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "2",
+                rollNo: "2",
+                enrollmentNo: "25210990889",
+                name: "RAJYUAY SATHITE",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "3",
+                rollNo: "3",
+                enrollmentNo: "23210990910",
+                name: "TAMANNA MUBAARAK MIHAWADAR",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "4",
+                rollNo: "4",
+                enrollmentNo: "23210990928",
+                name: "VASH DINKAR SAWANT",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "5",
+                rollNo: "5",
+                enrollmentNo: "24210990712",
+                name: "SHUBHRAJ RAMESH BHAT",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "6",
+                rollNo: "6",
+                enrollmentNo: "24210990713",
+                name: "RIDDHI SANGRAM GAIKWAD",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "7",
+                rollNo: "7",
+                enrollmentNo: "24210990818",
+                name: "NAMITA VIVEK PATIL",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "8",
+                rollNo: "8",
+                enrollmentNo: "24210990868",
+                name: "SAMEER MUNAF SHAIKH",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "9",
+                rollNo: "9",
+                enrollmentNo: "24210990878",
+                name: "DIVYA SACHIN YADAV",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "10",
+                rollNo: "10",
+                enrollmentNo: "24210990879",
+                name: "SRISHTI SAMBHAJI GHAYAL",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "11",
+                rollNo: "11",
+                enrollmentNo: "24210990880",
+                name: "SAMRUDDHI YUVRAJ CHAVAN",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "12",
+                rollNo: "12",
+                enrollmentNo: "24210990881",
+                name: "ANUSHKA PRAKASH DESHMUKH",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "13",
+                rollNo: "13",
+                enrollmentNo: "24210990882",
+                name: "HARSHADA ARUN SUTAR",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "14",
+                rollNo: "14",
+                enrollmentNo: "24210990883",
+                name: "AALIYA TOUFIQ MOMIN",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "15",
+                rollNo: "15",
+                enrollmentNo: "24210990884",
+                name: "AMRUTA DARANATH PATIL",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "16",
+                rollNo: "16",
+                enrollmentNo: "24210990885",
+                name: "AYUSH YOGESH LADO",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "17",
+                rollNo: "17",
+                enrollmentNo: "24210990886",
+                name: "RIYA PRADEEP JADHAV",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "18",
+                rollNo: "18",
+                enrollmentNo: "24210990887",
+                name: "ANUSHKA SANDEEP PATIL",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "19",
+                rollNo: "19",
+                enrollmentNo: "24210990888",
+                name: "SIDDHI ANIL DANGAT",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "20",
+                rollNo: "20",
+                enrollmentNo: "24210990889",
+                name: "VRUSHAILI JAYSHRING NORBALE",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "21",
+                rollNo: "21",
+                enrollmentNo: "24210990890",
+                name: "RUTUJA DATTARAY NALAVADE",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "22",
+                rollNo: "22",
+                enrollmentNo: "24210990891",
+                name: "SHRUTI DEEPAK TAKABARE",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "23",
+                rollNo: "23",
+                enrollmentNo: "24210990892",
+                name: "SHRAVANI GANPATI SANGAR",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "24",
+                rollNo: "24",
+                enrollmentNo: "24210990893",
+                name: "ANUSHKA RAJENDRA JADHAM",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "25",
+                rollNo: "25",
+                enrollmentNo: "24210990894",
+                name: "SHRAVANI UMESH POWAR",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "26",
+                rollNo: "26",
+                enrollmentNo: "24210990895",
+                name: "HARSHUL RAGHUNATH KAMBLE",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "27",
+                rollNo: "27",
+                enrollmentNo: "24210990896",
+                name: "SHRISANWVRDA SANDEEP GHATGE",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "28",
+                rollNo: "28",
+                enrollmentNo: "24210990897",
+                name: "AJAY DHONDIRAM SHELAKE",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "29",
+                rollNo: "29",
+                enrollmentNo: "24210990898",
+                name: "SATEJ BHAGWAN KATAWARE",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "30",
+                rollNo: "30",
+                enrollmentNo: "24210990899",
+                name: "AAYUSH AMIT PATIL",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "31",
+                rollNo: "31",
+                enrollmentNo: "24210990900",
+                name: "VAISHNAVI DHONDIRAM PATIL",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "32",
+                rollNo: "32",
+                enrollmentNo: "24210990901",
+                name: "SWARAJYA NITIN MANDOLE",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "33",
+                rollNo: "33",
+                enrollmentNo: "24210990902",
+                name: "SANJUANA VIJAY MONE",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "34",
+                rollNo: "34",
+                enrollmentNo: "24210990903",
+                name: "RIYA SUBHASH CHAVAN",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "35",
+                rollNo: "35",
+                enrollmentNo: "24210990904",
+                name: "SATYAM NISHIKANT RAVAL",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "36",
+                rollNo: "36",
+                enrollmentNo: "24210990905",
+                name: "JAKSHAVARDHANA HAREDEV KHOT",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "37",
+                rollNo: "37",
+                enrollmentNo: "24210990906",
+                name: "VIRAJ YUVRAJ KATKAR",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "38",
+                rollNo: "38",
+                enrollmentNo: "24210990907",
+                name: "DIVYANKA SHARANG PATIL",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "39",
+                rollNo: "39",
+                enrollmentNo: "24210990908",
+                name: "SAEE PRASHANH SHINDE",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "40",
+                rollNo: "40",
+                enrollmentNo: "24210990910",
+                name: "ANUSHKA SANDIP PATIL",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "41",
+                rollNo: "41",
+                enrollmentNo: "24210990911",
+                name: "SARTHAK SACHIN SASANE",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "42",
+                rollNo: "42",
+                enrollmentNo: "24210990912",
+                name: "DHIRAJ ANIL PATIL",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "43",
+                rollNo: "43",
+                enrollmentNo: "24210990913",
+                name: "PRANAV YASHWANT YADAV",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "44",
+                rollNo: "44",
+                enrollmentNo: "24210990914",
+                name: "SAMRUDDHI MOHAN KATAWARE",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "45",
+                rollNo: "45",
+                enrollmentNo: "24210990915",
+                name: "SAMIKSHA POPAT SUTAR",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "46",
+                rollNo: "46",
+                enrollmentNo: "24210990916",
+                name: "PRANALI VIJAY PADAVAL",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "47",
+                rollNo: "47",
+                enrollmentNo: "24210990917",
+                name: "MOHAMMED QADEER ANEES SHAIKH",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "48",
+                rollNo: "48",
+                enrollmentNo: "24210990918",
+                name: "OMKAR ANIL BAMANE",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "49",
+                rollNo: "49",
+                enrollmentNo: "24210990919",
+                name: "PRANAV YUVRAJ PATIL",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "50",
+                rollNo: "50",
+                enrollmentNo: "24210990921",
+                name: "ATHARVA DHIRAJ DEVANE",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "51",
+                rollNo: "51",
+                enrollmentNo: "24210990922",
+                name: "SANCHITA KRISHNAT PATIL",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "52",
+                rollNo: "52",
+                enrollmentNo: "24210990923",
+                name: "ATHARV DHIRAJ BHATE",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "53",
+                rollNo: "53",
+                enrollmentNo: "24210990924",
+                name: "VARDHAN RAHUL POWAR",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "54",
+                rollNo: "54",
+                enrollmentNo: "24210990925",
+                name: "TULSIDAS ASHOK VEER",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "55",
+                rollNo: "55",
+                enrollmentNo: "24210990927",
+                name: "SHREYAS SARJERAO PATIL",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "56",
+                rollNo: "56",
+                enrollmentNo: "24210990928",
+                name: "KAIVALYA RAVINDRA CHOUGULE",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "57",
+                rollNo: "57",
+                enrollmentNo: "24210990929",
+                name: "PRATHMESH MAHESH KHULPE",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "58",
+                rollNo: "58",
+                enrollmentNo: "24210990930",
+                name: "MUHIMMADSAAD ABUDULKARIM BAGWAN",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "59",
+                rollNo: "59",
+                enrollmentNo: "24210990932",
+                name: "SRUSHTI RAHUL BHOSALE",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "60",
+                rollNo: "60",
+                enrollmentNo: "24210990933",
+                name: "PIYUSH KIRAN TAWADE",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "61",
+                rollNo: "61",
+                enrollmentNo: "24210990934",
+                name: "DISHA SACHIN KORAVI",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "62",
+                rollNo: "62",
+                enrollmentNo: "24210990935",
+                name: "SHUBHAM BHARAT GHORPADE",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "63",
+                rollNo: "63",
+                enrollmentNo: "24210990936",
+                name: "ANUSHKA MAHESH DHUMAL",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "64",
+                rollNo: "64",
+                enrollmentNo: "24210990937",
+                name: "ANANYA AJIT GIRIGOSAVI",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "65",
+                rollNo: "65",
+                enrollmentNo: "24210990938",
+                name: "AARADHYA AJIT GIRIGOSAVI",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "66",
+                rollNo: "66",
+                enrollmentNo: "24210990939",
+                name: "ABDULSAAMAD ABDULMAJID MULLA",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "67",
+                rollNo: "67",
+                enrollmentNo: "25210990711",
+                name: "ADITI BABURAO PATIL",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "68",
+                rollNo: "68",
+                enrollmentNo: "25210990712",
+                name: "YASH JITENDRA MALI",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }, {
+                id: "69",
+                rollNo: "69",
+                enrollmentNo: "25210990714",
+                name: "AVIRAJ RAJENDRA POWAR",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0
+            }],
+            "4th Year": [{
+                id: "1",
+                rollNo: "1",
+                enrollmentNo: "FSE-401",
+                name: "OMKAR SHINDE",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "4th Year"
+            }, {
+                id: "2",
+                rollNo: "2",
+                enrollmentNo: "FSE-402",
+                name: "RUTUJA DESHMUKH",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "4th Year"
+            }, {
+                id: "3",
+                rollNo: "3",
+                enrollmentNo: "FSE-403",
+                name: "VISHAL MHATRE",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "4th Year"
+            }, {
+                id: "4",
+                rollNo: "4",
+                enrollmentNo: "FSE-404",
+                name: "TEJASWINI WADEKAR",
+                gender: "Female",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "4th Year"
+            }, {
+                id: "5",
+                rollNo: "5",
+                enrollmentNo: "FSE-405",
+                name: "SIDDHESH SONAWANE",
+                gender: "Male",
+                marks: 0,
+                totalClasses: 0,
+                present: 0,
+                absent: 0,
+                year: "4th Year"
+            }]
+        };
+
+        const ATTENDANCE_SUBJECTS = ["Data Analytics", "Embedded System", "Operating System"];
+
+        let currentYear = "3rd Year";
+        let selectedSubject = ATTENDANCE_SUBJECTS[0];
+        let students = JSON.parse(localStorage.getItem("eceStudents")) || YEAR_DATA["3rd Year"].map(student => ({...student,
+            year: "3rd Year"
+        }));
+        let attendanceRecords = JSON.parse(localStorage.getItem("eceAttendance")) || {};
+        let currentAttendance = {};
+        let editingStudentId = null;
+
+
+        /* =========================================================
+           DOM ELEMENTS
+           ========================================================= */
+
+        const sections = document.querySelectorAll(".section");
+        const navItems = document.querySelectorAll(".nav-item");
+
+        const pageTitle = document.getElementById("pageTitle");
+        const sidebar = document.getElementById("sidebar");
+        const mobileMenu = document.getElementById("mobileMenu");
+
+        const studentForm = document.getElementById("studentForm");
+        const searchInput = document.getElementById("searchInput");
+        const genderFilter = document.getElementById("genderFilter");
+        const attendanceDate = document.getElementById("attendanceDate");
+        const attendanceSubjectButtons = document.querySelectorAll(".subject-button");
+        const appShell = document.getElementById("appShell");
+        const loginScreen = document.getElementById("loginScreen");
+        const teacherLoginForm = document.getElementById("teacherLoginForm");
+        const teacherUsernameInput = document.getElementById("teacherUsername");
+        const teacherYearInput = document.getElementById("teacherYear");
+        const teacherNameInput = document.getElementById("teacherName");
+        const logoutBtn = document.getElementById("logoutBtn");
+
+
+        /* =========================================================
+           UTILITY FUNCTIONS
+           ========================================================= */
+
+        function escapeHTML(text) {
+            const map = {
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#039;"
+            };
+
+            return String(text).replace(/[&<>"']/g, m => map[m]);
+        }
+
+
+        function getInitials(name) {
+            const parts = name.trim().split(/\s+/);
+
+            if (parts.length === 1) {
+                return parts[0].substring(0, 2).toUpperCase();
+            }
+
+            return (
+                parts[0][0] +
+                parts[parts.length - 1][0]
+            ).toUpperCase();
+        }
+
+
+        function getTodayString() {
+            const date = new Date();
+
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, "0");
+            const day = String(date.getDate()).padStart(2, "0");
+
+            return `${year}-${month}-${day}`;
+        }
+
+
+        function getSubjectAttendanceTemplate() {
+            return ATTENDANCE_SUBJECTS.reduce((template, subject) => {
+                template[subject] = {
+                    present: 0,
+                    absent: 0,
+                    totalClasses: 0
+                };
+
+                return template;
+            }, {});
+        }
+
+
+        function showToast(message) {
+            const toast = document.createElement("div");
+
+            toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #00f5d4;
+        color: #000;
+        padding: 15px 20px;
+        border-radius: 8px;
+        z-index: 9999;
+        font-family: Inter, sans-serif;
+        font-size: 13px;
+        font-weight: 700;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    `;
+
+            toast.textContent = message;
+
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+
+        function showLoginScreen() {
+            if (appShell) appShell.classList.add("hidden");
+            if (loginScreen) loginScreen.classList.remove("hidden");
+        }
+
+
+        function showMainApp() {
+            if (loginScreen) loginScreen.classList.add("hidden");
+            if (appShell) appShell.classList.remove("hidden");
+        }
+
+
+        function logoutTeacher() {
+            localStorage.removeItem("eceTeacherLogin");
+            currentYear = "3rd Year";
+            students = getStudentsForYear(currentYear);
+            attendanceRecords = getAttendanceRecordsForYear(currentYear);
+
+            if (teacherLoginForm) {
+                teacherLoginForm.reset();
+            }
+
+            showLoginScreen();
+            showToast("Logged out successfully.");
+        }
+
+
+        function calculateAttendance(student, subject = selectedSubject) {
+            const subjectAttendance = student.subjectAttendance && student.subjectAttendance[subject];
+
+            if (subjectAttendance && typeof subjectAttendance === "object") {
+                const totalClasses = Number(subjectAttendance.totalClasses) || 0;
+
+                if (totalClasses <= 0) {
+                    return 0;
+                }
+
+                return Math.round(
+                    (Number(subjectAttendance.present) / totalClasses) * 100
+                );
+            }
+
+            if (!student.totalClasses || student.totalClasses <= 0) {
+                return 0;
+            }
+
+            return Math.round(
+                (Number(student.present) / Number(student.totalClasses)) * 100
+            );
+        }
+
+
+        function getAttendanceClass(value) {
+            if (value >= 75) {
+                return "attendance-good";
+            }
+
+            if (value >= 60) {
+                return "attendance-average";
+            }
+
+            return "attendance-low";
+        }
+
+
+        function calculateSummary(attendanceMap) {
+            let present = 0;
+            let absent = 0;
+
+            if (!attendanceMap || typeof attendanceMap !== "object") {
+                return {
+                    present: 0,
+                    absent: 0
+                };
+            }
+
+            Object.values(attendanceMap).forEach(status => {
+                if (status === "present") {
+                    present++;
+                }
+
+                if (status === "absent") {
+                    absent++;
+                }
+            });
+
+            return {
+                present,
+                absent
+            };
+        }
+
+
+        /* =========================================================
+           ATTENDANCE RECORD HELPERS
+           ========================================================= */
+
+        function getDailyAttendanceEntry(dateKey, subject = selectedSubject) {
+
+            if (!dateKey) {
+                return {
+                    summary: {
+                        present: 0,
+                        absent: 0
+                    },
+                    attendance: {}
+                };
+            }
+
+            const record = attendanceRecords[dateKey];
+
+            if (!record || typeof record !== "object") {
+                return {
+                    summary: {
+                        present: 0,
+                        absent: 0
+                    },
+                    attendance: {}
+                };
+            }
+
+            if (
+                record[subject] &&
+                typeof record[subject] === "object"
+            ) {
+                return {
+                    summary: record[subject].summary ||
+                        calculateSummary(record[subject].attendance || {}),
+
+                    attendance: record[subject].attendance || {}
+                };
+            }
+
+            if (
+                record.attendance &&
+                typeof record.attendance === "object"
+            ) {
+                return {
+                    summary: record.summary ||
+                        calculateSummary(record.attendance),
+
+                    attendance: record.attendance
+                };
+            }
+
+            return {
+                summary: record.summary ||
+                    calculateSummary(record),
+
+                attendance: record
+            };
+        }
+
+
+        /* =========================================================
+           REBUILD STUDENT ATTENDANCE TOTALS
+           ========================================================= */
+
+        function rebuildAttendanceTotals() {
+
+            students.forEach(student => {
+                student.subjectAttendance = {
+                    ...getSubjectAttendanceTemplate(),
+                    ...(student.subjectAttendance || {})
+                };
+
+                ATTENDANCE_SUBJECTS.forEach(subject => {
+                    const subjectSummary = student.subjectAttendance[subject];
+                    subjectSummary.present = 0;
+                    subjectSummary.absent = 0;
+                    subjectSummary.totalClasses = 0;
+                });
+            });
+
+            Object.keys(attendanceRecords).forEach(dateKey => {
+                const dayRecord = attendanceRecords[dateKey];
+
+                if (!dayRecord || typeof dayRecord !== "object") {
+                    return;
+                }
+
+                ATTENDANCE_SUBJECTS.forEach(subject => {
+                    const subjectRecord = dayRecord[subject];
+
+                    if (!subjectRecord || !subjectRecord.attendance || typeof subjectRecord.attendance !== "object") {
+                        return;
+                    }
+
+                    students.forEach(student => {
+                        const status = subjectRecord.attendance[student.id];
+
+                        if (status === "present") {
+                            student.subjectAttendance[subject].present++;
+                            student.subjectAttendance[subject].totalClasses++;
+                        }
+
+                        if (status === "absent") {
+                            student.subjectAttendance[subject].absent++;
+                            student.subjectAttendance[subject].totalClasses++;
+                        }
+                    });
+                });
+            });
+
+            students.forEach(student => {
+                const currentSummary = student.subjectAttendance[selectedSubject] || {
+                    present: 0,
+                    absent: 0,
+                    totalClasses: 0
+                };
+
+                student.present = currentSummary.present;
+                student.absent = currentSummary.absent;
+                student.totalClasses = currentSummary.totalClasses;
+            });
+        }
+
+
+        /* =========================================================
+           LOCAL STORAGE
+           ========================================================= */
+
+        function getYearStorageKey(year) {
+            return `eceStudents_${year.replace(/\s+/g, "_")}`;
+        }
+
+        function getYearAttendanceStorageKey(year) {
+            return `eceAttendance_${year.replace(/\s+/g, "_")}`;
+        }
+
+        function getStudentsForYear(year) {
+            const key = getYearStorageKey(year);
+            const saved = JSON.parse(localStorage.getItem(key));
+
+            if (Array.isArray(saved) && saved.length > 0) {
+                return saved.map(student => ({
+                    ...student,
+                    year,
+                    subjectAttendance: {
+                        ...getSubjectAttendanceTemplate(),
+                        ...(student.subjectAttendance || {})
+                    }
+                }));
+            }
+
+            return YEAR_DATA[year] ? YEAR_DATA[year].map(student => ({
+                ...student,
+                year,
+                subjectAttendance: getSubjectAttendanceTemplate()
+            })) : YEAR_DATA["3rd Year"].map(student => ({
+                ...student,
+                year: "3rd Year",
+                subjectAttendance: getSubjectAttendanceTemplate()
+            }));
+        }
+
+        function getAttendanceRecordsForYear(year) {
+            const key = getYearAttendanceStorageKey(year);
+            const saved = JSON.parse(localStorage.getItem(key));
+            return saved && typeof saved === "object" ? saved : {};
+        }
+
+        function saveStudents() {
+            localStorage.setItem("eceStudents", JSON.stringify(students));
+            localStorage.setItem(getYearStorageKey(currentYear), JSON.stringify(students));
+        }
+
+
+        function saveAttendanceRecords() {
+            localStorage.setItem("eceAttendance", JSON.stringify(attendanceRecords));
+            localStorage.setItem(getYearAttendanceStorageKey(currentYear), JSON.stringify(attendanceRecords));
+        }
+
+
+        /* =========================================================
+           NAVIGATION
+           ========================================================= */
+
+        function showSection(sectionName) {
+
+            sections.forEach(section => {
+                section.classList.remove("active");
+            });
+
+
+            const targetSection =
+                document.getElementById(sectionName);
+
+            if (targetSection) {
+                targetSection.classList.add("active");
+            }
+
+
+            navItems.forEach(item => {
+
+                item.classList.remove("active");
+
+                if (item.dataset.section === sectionName) {
+                    item.classList.add("active");
+                }
+
+            });
+
+
+            const titles = {
+                dashboard: "Dashboard",
+                students: "Student Records",
+                "add-student": "Add Student",
+                attendance: "Attendance",
+                reports: "Reports"
+            };
+
+
+            pageTitle.textContent =
+                titles[sectionName] || "Dashboard";
+
+
+            window.scrollTo({
+                top: 0,
+                behavior: "smooth"
+            });
+        }
+
+
+        /* =========================================================
+           DATE
+           ========================================================= */
+
+        function setCurrentDate() {
+
+            const dateElement =
+                document.getElementById("currentDate");
+
+            const now = new Date();
+
+            const options = {
+                day: "2-digit",
+                month: "short",
+                year: "numeric"
+            };
+
+            dateElement.textContent =
+                now.toLocaleDateString(
+                    "en-IN",
+                    options
+                );
+        }
+
+
+        function setAttendanceDate() {
+
+            attendanceDate.value =
+                getTodayString();
+        }
+
+
+        /* =========================================================
+           LOAD ATTENDANCE FOR SELECTED DATE
+           ========================================================= */
+
+        function loadAttendanceForDate() {
+
+            const date = attendanceDate.value;
+
+            const saved =
+                getDailyAttendanceEntry(date, selectedSubject).attendance;
+
+
+            currentAttendance = {};
+
+
+            students.forEach(student => {
+
+                if (saved[student.id]) {
+
+                    currentAttendance[student.id] =
+                        saved[student.id];
+
+                } else {
+
+                    currentAttendance[student.id] = null;
+
+                }
+
+            });
+
+        }
+
+
+        /* =========================================================
+           SET ATTENDANCE
+           ========================================================= */
+
+        function setAttendance(studentId, status) {
+
+            if (!studentId) {
+                return;
+            }
+
+
+            /*
+               IMPORTANT:
+               Do NOT call renderAttendance()
+               before saving currentAttendance.
+            */
+
+            currentAttendance[studentId] = status;
+
+
+            /*
+               Only update the buttons and summary.
+            */
+
+            updateAttendanceButtons();
+
+            updateAttendanceSummary();
+
+        }
+
+
+        /* =========================================================
+           UPDATE ATTENDANCE BUTTONS
+           ========================================================= */
+
+        function updateAttendanceButtons() {
+
+            const buttons =
+                document.querySelectorAll(".att-btn");
+
+
+            buttons.forEach(button => {
+
+                const studentId =
+                    button.dataset.studentId;
+
+                const status =
+                    button.dataset.status;
+
+
+                button.classList.remove("selected");
+
+
+                if (
+                    currentAttendance[studentId] ===
+                    status
+                ) {
+
+                    button.classList.add("selected");
+
+                }
+
+            });
+
+        }
+
+
+        /* =========================================================
+           SAVE DAILY ATTENDANCE
+           ========================================================= */
+
+        function saveDailyAttendanceRecord() {
+
+            const date =
+                attendanceDate.value;
+
+
+            if (!date) {
+
+                showToast(
+                    "Please select a date before saving attendance."
+                );
+
+                return;
+            }
+
+
+            if (students.length === 0) {
+
+                showToast(
+                    "No students available."
+                );
+
+                return;
+            }
+
+            students.forEach(student => {
+
+                if (!currentAttendance[student.id]) {
+
+                    currentAttendance[student.id] =
+                        "absent";
+
+                }
+
+            });
+
+            const summary =
+                calculateSummary(
+                    currentAttendance
+                );
+
+            attendanceRecords[date] = {
+                ...(attendanceRecords[date] || {}),
+                [selectedSubject]: {
+                    summary: summary,
+                    attendance: {
+                        ...currentAttendance
+                    }
+                }
+            };
+
+            rebuildAttendanceTotals();
+
+            saveStudents();
+            saveAttendanceRecords();
+
+            updateDashboard();
+            renderStudents();
+            renderReports();
+            renderAttendance();
+
+            showToast(
+                `Attendance saved for ${selectedSubject}! Present: ${summary.present}, Absent: ${summary.absent}`
+            );
+
+        }
+
+
+        /* =========================================================
+           RENDER STUDENTS
+           ========================================================= */
+
+        function renderStudents() {
+
+            const tbody =
+                document.getElementById(
+                    "studentTableBody"
+                );
+
+
+            const search =
+                searchInput.value
+                .toLowerCase()
+                .trim();
+
+
+            const gender =
+                genderFilter.value;
+
+
+            const filteredStudents =
+                students.filter(student => {
+
+                    const matchesSearch =
+                        student.name
+                        .toLowerCase()
+                        .includes(search) ||
+
+                        String(student.rollNo)
+                        .toLowerCase()
+                        .includes(search) ||
+
+                        String(student.enrollmentNo)
+                        .toLowerCase()
+                        .includes(search);
+
+
+                    const matchesGender =
+                        gender === "all" ||
+                        student.gender === gender;
+
+
+                    return (
+                        matchesSearch &&
+                        matchesGender
+                    );
+
+                });
+
+
+            if (filteredStudents.length === 0) {
+
+                tbody.innerHTML = `
+            <tr>
+                <td colspan="7">
+                    <div class="empty-state">
+                        No students found.
+                    </div>
+                </td>
+            </tr>
+        `;
+
+                return;
+            }
+
+
+            tbody.innerHTML =
+                filteredStudents.map(student => {
+
+                    const attendance =
+                        calculateAttendance(student);
+
+
+                    const attendanceClass =
+                        getAttendanceClass(
+                            attendance
+                        );
+
+
+                    return `
+                <tr>
+
+                    <td>
+                        ${escapeHTML(student.rollNo)}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(student.enrollmentNo)}
+                    </td>
+
+                    <td class="student-name-cell">
+                        ${escapeHTML(student.name)}
+                    </td>
+
+                    <td>
+                        <span class="gender-badge">
+                            ${escapeHTML(student.gender)}
+                        </span>
+                    </td>
+
+                    <td class="marks-value">
+                        ${student.marks}%
+                    </td>
+
+                    <td class="${attendanceClass}">
+                        ${attendance}%
+                    </td>
+
+                    <td>
+
+                        <div class="action-buttons">
+
+                            <button
+                                class="action-btn edit"
+                                onclick="editStudent('${student.id}')"
+                                title="Edit"
+                            >
+                                ✎
+                            </button>
+
+                            <button
+                                class="action-btn delete"
+                                onclick="deleteStudent('${student.id}')"
+                                title="Delete"
+                            >
+                                ×
+                            </button>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+            `;
+
+                }).join("");
+
+        }
+
+
+        /* =========================================================
+           DASHBOARD
+           ========================================================= */
+
+        function updateDashboard() {
+
+            const total =
+                students.length;
+
+
+            document.getElementById(
+                "totalStudents"
+            ).textContent = total;
+
+
+            /*
+               TODAY'S ATTENDANCE
+            */
+
+            const today =
+                getTodayString();
+
+
+            const todayRecord =
+                getDailyAttendanceEntry(today, selectedSubject);
+
+
+            const presentToday =
+                todayRecord.summary.present;
+
+
+            const absentToday =
+                todayRecord.summary.absent;
+
+
+            document.getElementById(
+                    "presentToday"
+                ).textContent =
+                presentToday;
+
+
+            document.getElementById(
+                    "absentToday"
+                ).textContent =
+                absentToday;
+
+
+            /*
+               AVERAGE MARKS
+            */
+
+            let averageMarks = 0;
+
+
+            if (students.length > 0) {
+
+                const totalMarks =
+                    students.reduce(
+                        (sum, student) =>
+                        sum + Number(student.marks),
+                        0
+                    );
+
+
+                averageMarks =
+                    Math.round(
+                        totalMarks /
+                        students.length
+                    );
+
+            }
+
+
+            document.getElementById(
+                    "averageMarks"
+                ).textContent =
+                `${averageMarks}%`;
+
+
+            /*
+               RECENT STUDENTS
+            */
+
+            const recent =
+                document.getElementById(
+                    "recentStudents"
+                );
+
+
+            if (students.length === 0) {
+
+                recent.innerHTML = `
+            <div class="empty-state">
+                No students added yet.
+            </div>
+        `;
+
+            } else {
+
+                recent.innerHTML =
+                    students
+                    .slice(-5)
+                    .reverse()
+                    .map(student => {
+
+                        return `
+                        <div class="recent-item">
+
+                            <div class="recent-left">
+
+                                <div class="mini-avatar">
+                                    ${getInitials(student.name)}
+                                </div>
+
+                                <div>
+
+                                    <div class="recent-name">
+                                        ${escapeHTML(student.name)}
+                                    </div>
+
+                                    <div class="recent-roll">
+                                        Roll No. ${escapeHTML(student.rollNo)}
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            <span class="marks-badge">
+                                ${student.marks}%
+                            </span>
+
+                        </div>
+                    `;
+
+                    })
+                    .join("");
+
+            }
+
+
+            /*
+               OVERALL ATTENDANCE
+            */
+
+            let totalPresent = 0;
+            let totalClasses = 0;
+
+
+            students.forEach(student => {
+
+                totalPresent +=
+                    Number(student.present) || 0;
+
+                totalClasses +=
+                    Number(student.totalClasses) || 0;
+
+            });
+
+
+            const overallAttendance =
+                totalClasses > 0 ?
+                Math.round(
+                    (totalPresent /
+                        totalClasses) *
+                    100
+                ) :
+                0;
+
+
+            const totalAbsent =
+                totalClasses -
+                totalPresent;
+
+
+            document.getElementById(
+                    "attendancePercent"
+                ).textContent =
+                `${overallAttendance}%`;
+
+
+            document.getElementById(
+                    "overviewPresent"
+                ).textContent =
+                totalPresent;
+
+
+            document.getElementById(
+                    "overviewAbsent"
+                ).textContent =
+                totalAbsent;
+
+
+            /*
+               UPDATE CIRCLE
+            */
+
+            const circle =
+                document.querySelector(
+                    ".attendance-circle"
+                );
+
+
+            if (circle) {
+
+                const degrees =
+                    overallAttendance * 3.6;
+
+
+                circle.style.background = `
+            radial-gradient(
+                circle,
+                #080d20 56%,
+                transparent 57%
+            ),
+
+            conic-gradient(
+                #00f5d4 0deg,
+                #00f5d4 ${degrees}deg,
+                rgba(255,255,255,0.06)
+                ${degrees}deg
+            )
+        `;
+
+            }
+
+        }
+
+
+        /* =========================================================
+           RENDER ATTENDANCE
+           ========================================================= */
+
+        function renderAttendance() {
+
+            const list =
+                document.getElementById(
+                    "attendanceList"
+                );
+
+
+            if (students.length === 0) {
+
+                list.innerHTML = `
+            <div class="empty-state">
+                Add students first to manage attendance.
+            </div>
+        `;
+
+                currentAttendance = {};
+
+                updateAttendanceSummary();
+
+                return;
+            }
+
+
+            /*
+               IMPORTANT:
+               Do not reset currentAttendance here.
+
+               This is the main fix.
+            */
+
+            list.innerHTML =
+                students.map(student => {
+
+                    const status =
+                        currentAttendance[student.id];
+
+
+                    const attendance =
+                        calculateAttendance(student);
+
+
+                    const initials =
+                        getInitials(student.name);
+
+
+                    return `
+                <div
+                    class="attendance-row"
+                    data-student-id="${student.id}"
+                >
+
+                    <div class="attendance-roll">
+                        #${escapeHTML(student.rollNo)}
+                    </div>
+
+
+                    <div class="attendance-student">
+
+                        <div class="attendance-avatar">
+                            ${initials}
+                        </div>
+
+                        <div>
+
+                            <strong>
+                                ${escapeHTML(student.name)}
+                            </strong>
+
+                            <small>
+                                ${escapeHTML(student.enrollmentNo)}
+                            </small>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="attendance-percentage">
+
+                        Current:
+                        <strong>
+                            ${attendance}%
+                        </strong>
+
+                    </div>
+
+
+                    <div class="attendance-buttons">
+
+                        <button
+                            class="att-btn present ${
+                                status === "present"
+                                    ? "selected"
+                                    : ""
+                            }"
+                            data-student-id="${student.id}"
+                            data-status="present"
+                            type="button"
+                        >
+                            ✓ Present
+                        </button>
+
+
+                        <button
+                            class="att-btn absent ${
+                                status === "absent"
+                                    ? "selected"
+                                    : ""
+                            }"
+                            data-student-id="${student.id}"
+                            data-status="absent"
+                            type="button"
+                        >
+                            × Absent
+                        </button>
+
+                    </div>
+
+                </div>
+            `;
+
+                }).join("");
+
+
+            updateAttendanceSummary();
+
+        }
+
+
+        /* =========================================================
+           ATTENDANCE SUMMARY
+           ========================================================= */
+
+        function updateAttendanceSummary() {
+
+            let present = 0;
+            let absent = 0;
+
+
+            students.forEach(student => {
+
+                const status =
+                    currentAttendance[student.id];
+
+
+                if (status === "present") {
+
+                    present++;
+
+                } else if (status === "absent") {
+
+                    absent++;
+
+                }
+
+            });
+
+
+            document.getElementById(
+                    "attendancePresent"
+                ).textContent =
+                present;
+
+
+            document.getElementById(
+                    "attendanceAbsent"
+                ).textContent =
+                absent;
+
+
+            document.getElementById(
+                    "attendanceTotal"
+                ).textContent =
+                students.length;
+
+        }
+
+
+        /* =========================================================
+           EDIT STUDENT
+           ========================================================= */
+
+        function editStudent(id) {
+
+            const student =
+                students.find(
+                    item => item.id === id
+                );
+
+
+            if (!student) {
+                return;
+            }
+
+
+            editingStudentId = id;
+
+
+            document.getElementById(
+                    "studentName"
+                ).value =
+                student.name;
+
+
+            document.getElementById(
+                    "rollNo"
+                ).value =
+                student.rollNo;
+
+
+            document.getElementById(
+                    "enrollmentNo"
+                ).value =
+                student.enrollmentNo;
+
+
+            document.getElementById(
+                    "gender"
+                ).value =
+                student.gender;
+
+
+            document.getElementById(
+                    "marks"
+                ).value =
+                student.marks;
+
+
+            document.getElementById(
+                    "formTitle"
+                ).textContent =
+                "Edit Student";
+
+
+            document.getElementById(
+                    "submitText"
+                ).textContent =
+                "Update Student";
+
+
+            showSection("add-student");
+
+        }
+
+
+        /* =========================================================
+           DELETE STUDENT
+           ========================================================= */
+
+        function deleteStudent(id) {
+
+            const student =
+                students.find(
+                    item => item.id === id
+                );
+
+
+            if (!student) {
+                return;
+            }
+
+
+            if (!confirm(
+                    `Delete ${student.name} from the system?`
+                )) {
+                return;
+            }
+
+
+            students =
+                students.filter(
+                    item => item.id !== id
+                );
+
+
+            /*
+               Remove student from
+               all attendance records.
+            */
+
+            Object.keys(
+                attendanceRecords
+            ).forEach(date => {
+
+                const record =
+                    getDailyAttendanceEntry(date);
+
+
+                if (
+                    record.attendance[id] !== undefined
+                ) {
+
+                    delete record.attendance[id];
+
+
+                    record.summary =
+                        calculateSummary(
+                            record.attendance
+                        );
+
+
+                    if (
+                        Object.keys(
+                            record.attendance
+                        ).length === 0
+                    ) {
+
+                        delete attendanceRecords[date];
+
+                    } else {
+
+                        attendanceRecords[date] = {
+                            summary: record.summary,
+                            attendance: record.attendance
+                        };
+
+                    }
+
+                }
+
+            });
+
+
+            delete currentAttendance[id];
+
+
+            saveStudents();
+            saveAttendanceRecords();
+
+
+            rebuildAttendanceTotals();
+
+
+            updateDashboard();
+            renderStudents();
+            renderAttendance();
+            renderReports();
+
+
+            showToast(
+                "Student deleted successfully."
+            );
+
+        }
+
+
+        /* =========================================================
+           REPORTS
+           ========================================================= */
+
+        function renderReports() {
+
+            let averageMarks = 0;
+
+            if (students.length > 0) {
+                averageMarks = Math.round(
+                    students.reduce((sum, student) => sum + Number(student.marks), 0) /
+                    students.length
+                );
+            }
+
+            let totalPresent = 0;
+            let totalClasses = 0;
+
+            students.forEach(student => {
+                totalPresent += Number(student.present) || 0;
+                totalClasses += Number(student.totalClasses) || 0;
+            });
+
+            const overallAttendance = totalClasses > 0 ? Math.round((totalPresent / totalClasses) * 100) : 0;
+
+            const male = students.filter(s => s.gender === "Male").length;
+            const female = students.filter(s => s.gender === "Female").length;
+
+            document.getElementById("reportAverage").textContent = `${averageMarks}%`;
+            document.getElementById("reportAttendance").textContent = `${overallAttendance}%`;
+
+            const subjectAttendanceMap = {
+                "Data Analytics": "dataAnalyticsAttendance",
+                "Embedded System": "embeddedSystemAttendance",
+                "Operating System": "operatingSystemAttendance"
+            };
+
+            ATTENDANCE_SUBJECTS.forEach(subject => {
+                let subjectPresent = 0;
+                let subjectTotal = 0;
+
+                students.forEach(student => {
+                    const subjectSummary = student.subjectAttendance && student.subjectAttendance[subject];
+
+                    if (!subjectSummary || typeof subjectSummary !== "object") {
+                        return;
+                    }
+
+                    subjectPresent += Number(subjectSummary.present) || 0;
+                    subjectTotal += Number(subjectSummary.totalClasses) || 0;
+                });
+
+                const subjectAttendance = subjectTotal > 0 ? Math.round((subjectPresent / subjectTotal) * 100) : 0;
+                const subjectElement = document.getElementById(subjectAttendanceMap[subject]);
+
+                if (subjectElement) {
+                    subjectElement.textContent = `${subjectAttendance}%`;
+                }
+            });
+
+            document.getElementById("maleCount").textContent = male;
+            document.getElementById("femaleCount").textContent = female;
+
+            const sorted = [...students].sort((a, b) => Number(b.marks) - Number(a.marks));
+            const tbody = document.getElementById("reportTableBody");
+
+            if (sorted.length === 0) {
+                tbody.innerHTML = `
+            <tr>
+                <td colspan="6">
+                    <div class="empty-state">
+                        No student data available.
+                    </div>
+                </td>
+            </tr>
+        `;
+                return;
+            }
+
+            tbody.innerHTML = sorted.map((student, index) => {
+                const attendance = calculateAttendance(student, selectedSubject);
+                const status = attendance > 50 ? "Stable" : "Low";
+                const statusClass = attendance > 50 ? "attendance-good" : "attendance-low";
+
+                return `
+            <tr>
+                <td>#${index + 1}</td>
+                <td class="student-name-cell">${escapeHTML(student.name)}</td>
+                <td>${escapeHTML(student.rollNo)}</td>
+                <td class="marks-value">${student.marks}%</td>
+                <td class="${getAttendanceClass(attendance)}">${attendance}%</td>
+                <td class="${statusClass}">${status}</td>
+            </tr>
+        `;
+            }).join("");
+        }
+
+
+        /* =========================================================
+           STUDENT FORM
+           ========================================================= */
+
+        studentForm.addEventListener(
+            "submit",
+            event => {
+
+                event.preventDefault();
+
+
+                const name =
+                    document.getElementById(
+                        "studentName"
+                    ).value.trim();
+
+
+                const rollNo =
+                    document.getElementById(
+                        "rollNo"
+                    ).value.trim();
+
+
+                const enrollmentNo =
+                    document.getElementById(
+                        "enrollmentNo"
+                    ).value.trim();
+
+
+                const gender =
+                    document.getElementById(
+                        "gender"
+                    ).value;
+
+
+                const marks =
+                    Number(
+                        document.getElementById(
+                            "marks"
+                        ).value
+                    );
+
+
+                if (!name ||
+                    !rollNo ||
+                    !enrollmentNo ||
+                    !gender
+                ) {
+
+                    showToast(
+                        "Please fill all required fields."
+                    );
+
+                    return;
+                }
+
+
+                if (
+                    marks < 0 ||
+                    marks > 100
+                ) {
+
+                    showToast(
+                        "Marks must be between 0 and 100."
+                    );
+
+                    return;
+                }
+
+
+                const duplicateRoll =
+                    students.find(
+                        s =>
+                        s.rollNo
+                        .toLowerCase() ===
+                        rollNo.toLowerCase() &&
+                        s.id !== editingStudentId
+                    );
+
+
+                if (duplicateRoll) {
+
+                    showToast(
+                        "This roll number already exists."
+                    );
+
+                    return;
+                }
+
+
+                const duplicateEnrollment =
+                    students.find(
+                        s =>
+                        s.enrollmentNo
+                        .toLowerCase() ===
+                        enrollmentNo.toLowerCase() &&
+                        s.id !== editingStudentId
+                    );
+
+
+                if (duplicateEnrollment) {
+
+                    showToast(
+                        "This enrollment number already exists."
+                    );
+
+                    return;
+                }
+
+
+                /*
+                   UPDATE
+                */
+
+                if (editingStudentId) {
+
+                    const student =
+                        students.find(
+                            s =>
+                            s.id ===
+                            editingStudentId
+                        );
+
+
+                    if (student) {
+
+                        student.name = name;
+                        student.rollNo = rollNo;
+                        student.enrollmentNo =
+                            enrollmentNo;
+                        student.gender = gender;
+                        student.marks = marks;
+
+                    }
+
+
+                    showToast(
+                        "Student updated successfully."
+                    );
+
+                }
+
+
+                /*
+                   ADD
+                */
+                else {
+
+                    const newStudent = {
+
+                        id: Date.now().toString(),
+
+                        name: name,
+
+                        rollNo: rollNo,
+
+                        enrollmentNo: enrollmentNo,
+
+                        gender: gender,
+
+                        marks: marks,
+
+                        totalClasses: 0,
+
+                        present: 0,
+
+                        absent: 0,
+
+                        subjectAttendance: getSubjectAttendanceTemplate()
+
+                    };
+
+
+                    students.push(
+                        newStudent
+                    );
+
+
+                    showToast(
+                        "Student added successfully."
+                    );
+
+                }
+
+
+                saveStudents();
+
+
+                studentForm.reset();
+
+
+                editingStudentId = null;
+
+
+                document.getElementById(
+                        "formTitle"
+                    ).textContent =
+                    "Add New Student";
+
+
+                document.getElementById(
+                        "submitText"
+                    ).textContent =
+                    "Add Student";
+
+
+                updateDashboard();
+                renderStudents();
+                renderAttendance();
+                renderReports();
+
+
+                setTimeout(
+                    () =>
+                    showSection(
+                        "students"
+                    ),
+                    500
+                );
+
+            }
+        );
+
+
+        /* =========================================================
+           CLEAR FORM
+           ========================================================= */
+
+        document.getElementById(
+            "clearForm"
+        ).addEventListener(
+            "click",
+            () => {
+
+                studentForm.reset();
+
+                editingStudentId = null;
+
+                document.getElementById(
+                        "formTitle"
+                    ).textContent =
+                    "Add New Student";
+
+                document.getElementById(
+                        "submitText"
+                    ).textContent =
+                    "Add Student";
+
+            }
+        );
+
+
+        /* =========================================================
+           ATTENDANCE BUTTON EVENT DELEGATION
+           ========================================================= */
+
+        document.getElementById(
+            "attendanceList"
+        ).addEventListener(
+            "click",
+            event => {
+
+                const button =
+                    event.target.closest(
+                        ".att-btn"
+                    );
+
+
+                if (!button) {
+                    return;
+                }
+
+
+                const studentId =
+                    button.dataset.studentId;
+
+
+                const status =
+                    button.dataset.status;
+
+
+                if (
+                    studentId &&
+                    status
+                ) {
+
+                    setAttendance(
+                        studentId,
+                        status
+                    );
+
+                }
+
+            }
+        );
+
+
+        /* =========================================================
+           MARK ALL PRESENT
+           ========================================================= */
+
+        document.getElementById(
+            "presentAll"
+        ).addEventListener(
+            "click",
+            () => {
+
+                students.forEach(student => {
+
+                    currentAttendance[
+                        student.id
+                    ] = "present";
+
+                });
+
+
+                updateAttendanceButtons();
+                updateAttendanceSummary();
+
+
+                showToast(
+                    "All students marked Present."
+                );
+
+            }
+        );
+
+
+        /* =========================================================
+           MARK ALL ABSENT
+           ========================================================= */
+
+        document.getElementById(
+            "absentAll"
+        ).addEventListener(
+            "click",
+            () => {
+
+                students.forEach(student => {
+
+                    currentAttendance[
+                        student.id
+                    ] = "absent";
+
+                });
+
+
+                updateAttendanceButtons();
+                updateAttendanceSummary();
+
+
+                showToast(
+                    "All students marked Absent."
+                );
+
+            }
+        );
+
+
+        /* =========================================================
+           SAVE ATTENDANCE
+           ========================================================= */
+
+        document.getElementById(
+            "saveAttendance"
+        ).addEventListener(
+            "click",
+            saveDailyAttendanceRecord
+        );
+
+
+        /* =========================================================
+           DATE CHANGE
+           ========================================================= */
+
+        attendanceDate.addEventListener(
+            "change",
+            () => {
+
+                loadAttendanceForDate();
+
+                renderAttendance();
+
+            }
+        );
+
+        function syncSubjectButtons() {
+            attendanceSubjectButtons.forEach(button => {
+                const isActive = button.dataset.subject === selectedSubject;
+                button.classList.toggle("active", isActive);
+                button.setAttribute("aria-pressed", isActive ? "true" : "false");
+            });
+        }
+
+        if (attendanceSubjectButtons.length) {
+            attendanceSubjectButtons.forEach(button => {
+                button.addEventListener("click", () => {
+                    selectedSubject = button.dataset.subject || ATTENDANCE_SUBJECTS[0];
+                    syncSubjectButtons();
+                    loadAttendanceForDate();
+                    updateDashboard();
+                    renderStudents();
+                    renderAttendance();
+                    renderReports();
+                });
+            });
+
+            syncSubjectButtons();
+        }
+
+
+        /* =========================================================
+           SEARCH
+           ========================================================= */
+
+        searchInput.addEventListener(
+            "input",
+            renderStudents
+        );
+
+
+        /* =========================================================
+           GENDER FILTER
+           ========================================================= */
+
+        genderFilter.addEventListener(
+            "change",
+            renderStudents
+        );
+
+
+        /* =========================================================
+           NAVIGATION
+           ========================================================= */
+
+        navItems.forEach(item => {
+
+            item.addEventListener(
+                "click",
+                () => {
+
+                    showSection(
+                        item.dataset.section
+                    );
+
+                    sidebar.classList.remove(
+                        "open"
+                    );
+
+                }
+            );
+
+        });
+
+
+        /* =========================================================
+           MOBILE MENU
+           ========================================================= */
+
+        mobileMenu.addEventListener(
+            "click",
+            () => {
+
+                sidebar.classList.toggle(
+                    "open"
+                );
+
+            }
+        );
+
+
+        /* =========================================================
+           INITIALIZATION
+           ========================================================= */
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            () => {
+
+                const savedTeacher = JSON.parse(localStorage.getItem("eceTeacherLogin")) || null;
+
+                if (savedTeacher && savedTeacher.year) {
+                    currentYear = savedTeacher.year;
+                    students = getStudentsForYear(currentYear);
+                    attendanceRecords = getAttendanceRecordsForYear(currentYear);
+                }
+
+                if (!savedTeacher || !savedTeacher.username || !savedTeacher.year || !savedTeacher.name) {
+                    showLoginScreen();
+                } else {
+                    showMainApp();
+
+                    const adminAvatar = document.querySelector(".admin-avatar");
+                    if (adminAvatar) {
+                        adminAvatar.textContent = savedTeacher.name.trim().charAt(0).toUpperCase();
+                    }
+                }
+
+                if (teacherLoginForm) {
+                    teacherLoginForm.addEventListener("submit", event => {
+                        event.preventDefault();
+
+                        const username = teacherUsernameInput.value.trim();
+                        const year = teacherYearInput.value.trim();
+                        const name = teacherNameInput.value.trim();
+
+                        if (!username || !year || !name) {
+                            showToast("Please enter username, year, and name.");
+                            return;
+                        }
+
+                        currentYear = year;
+                        students = getStudentsForYear(currentYear);
+                        attendanceRecords = getAttendanceRecordsForYear(currentYear);
+
+                        const teacherData = {
+                            username,
+                            year,
+                            name
+                        };
+                        localStorage.setItem("eceTeacherLogin", JSON.stringify(teacherData));
+
+                        const adminAvatar = document.querySelector(".admin-avatar");
+                        if (adminAvatar) {
+                            adminAvatar.textContent = name.charAt(0).toUpperCase();
+                        }
+
+                        showToast(`Welcome ${name}!`);
+                        showMainApp();
+                        updateDashboard();
+                        renderStudents();
+                        renderAttendance();
+                        renderReports();
+                    });
+                }
+
+                if (logoutBtn) {
+                    logoutBtn.addEventListener("click", logoutTeacher);
+                }
+
+                /*
+                   Recalculate attendance
+                   from all saved dates.
+                */
+
+                rebuildAttendanceTotals();
+
+
+                saveStudents();
+
+
+                setCurrentDate();
+
+
+                setAttendanceDate();
+
+
+                /*
+                   Load today's attendance
+                   before rendering attendance.
+                */
+
+                loadAttendanceForDate();
+
+
+                updateDashboard();
+
+
+                renderStudents();
+
+
+                renderAttendance();
+
+
+                renderReports();
+
+            }
+        );
+    </script>
+
+</body>
+
+</html>
